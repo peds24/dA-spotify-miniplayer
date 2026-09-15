@@ -78,9 +78,6 @@ targets:
     platform: macOS
     sources:
       - path: Tests/SlicoCloneTests
-    resources:
-      - path: Sources/SlicoClone/Resources/Fonts
-        optional: true
     dependencies:
       - target: SlicoClone
 schemes:
@@ -555,7 +552,7 @@ Expected: both `.ttf` files exist and are non-empty (`ls -la Sources/SlicoClone/
 
 - [ ] **Step 2: Add the fonts directory as a resource for both targets in `project.yml`**
 
-Modify `project.yml`'s `SlicoClone` target to add a `resources` key (it currently has none):
+Modify `project.yml`'s `SlicoClone` target to add a `resources` key (it currently has none), and add one to the `SlicoCloneTests` target too (it currently has none — the font files didn't exist yet when Task 1 wrote it):
 
 ```yaml
   SlicoClone:
@@ -565,9 +562,16 @@ Modify `project.yml`'s `SlicoClone` target to add a `resources` key (it currentl
       - path: Sources/SlicoClone
     resources:
       - path: Sources/SlicoClone/Resources/Fonts
+  SlicoCloneTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests/SlicoCloneTests
+    resources:
+      - path: Sources/SlicoClone/Resources/Fonts
+    dependencies:
+      - target: SlicoClone
 ```
-
-(Leave the `SlicoCloneTests` target's existing `resources: [path: Sources/SlicoClone/Resources/Fonts, optional: true]` as-is — it already covers the test target.)
 
 - [ ] **Step 3: Write the failing font registration test**
 
