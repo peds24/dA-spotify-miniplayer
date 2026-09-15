@@ -1226,7 +1226,7 @@ git commit -m "Add Keychain-backed and in-memory token stores"
 - Create: `Sources/DAMiniPlayer/Resources/Config.plist.example`
 - Create: `Sources/DAMiniPlayer/Auth/SpotifyAuth.swift`
 - Modify: `Sources/DAMiniPlayer/App/AppDelegate.swift`
-- Create: `README.md`
+- Modify: `README.md` (a top-level README with project description and license already exists — this task appends a "## Setup" section to it, it does not replace it)
 
 **Interfaces:**
 - Consumes: `PKCE` (Task 3), `TokenExpiry` (Task 3), `TokenStore` (Task 8).
@@ -1473,14 +1473,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 ```
 
-- [ ] **Step 6: Write `README.md` with setup instructions**
+- [ ] **Step 6: Append a "## Setup" section to the existing `README.md`**
+
+The repo root already has a `README.md` with a project description and a
+`## License` section (added before this plan's implementation started).
+Insert a new `## Setup` section **before** the existing `## License`
+section — do not change anything else in the file. The section to insert:
 
 ```markdown
-# DA Mini Player
-
-A native macOS floating mini player for Spotify with custom styling and a
-"Add to Liked Songs" button.
-
 ## Setup
 
 ### 1. Install dependencies
