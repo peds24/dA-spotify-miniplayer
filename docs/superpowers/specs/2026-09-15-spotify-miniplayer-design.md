@@ -1,15 +1,14 @@
-# Spotify Mini Player (Silicio Clone) — Design
+# DA Spotify Mini Player — Design
 
 ## Purpose
 
-A native macOS floating mini player for Spotify, inspired by
-[Silicio](https://apps.apple.com/us/app/silicio-widgets-mini-player/id933627574?mt=12).
-The two reasons to build a clone rather than use Silicio directly:
+A native macOS floating mini player for Spotify, built instead of using an
+existing third-party mini player app, for two reasons:
 
 1. Full control over the visual styling.
-2. An "Add to Liked Songs" heart button — a feature Silicio doesn't offer,
-   since liking a song is a Spotify library edit that requires the Web API,
-   not just local playback control.
+2. An "Add to Liked Songs" heart button — a feature existing mini player
+   apps typically don't offer, since liking a song is a Spotify library
+   edit that requires the Web API, not just local playback control.
 
 ## Architecture
 

@@ -1,4 +1,4 @@
-# Spotify Mini Player (Silicio Clone) Implementation Plan
+# DA Spotify Mini Player Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -14,10 +14,10 @@
 
 - Deployment target: macOS 13.0+.
 - Swift version: 6.0 (Swift tools 6.4 is installed; project settings pin language version to 6.0 for stability).
-- Project file is **generated** by XcodeGen from `project.yml` — never hand-edit `SlicoClone.xcodeproj`; edit `project.yml` and re-run `xcodegen generate`. The `.xcodeproj` is gitignored.
-- Bundle identifier: `com.pedro.slico-clone`.
+- Project file is **generated** by XcodeGen from `project.yml` — never hand-edit `DAMiniPlayer.xcodeproj`; edit `project.yml` and re-run `xcodegen generate`. The `.xcodeproj` is gitignored.
+- Bundle identifier: `com.pedro.da-miniplayer`.
 - App is `LSUIElement` (no Dock icon, no app switcher entry) — menu bar + floating panel only.
-- OAuth redirect URI: custom scheme `slico-clone://callback` (registered as a `CFBundleURLTypes` entry).
+- OAuth redirect URI: custom scheme `da-miniplayer://callback` (registered as a `CFBundleURLTypes` entry).
 - Spotify Web API scopes: `user-library-read user-library-modify` — used only for the like/unlike feature.
 - Color tokens (exact values from spec, dark palette only):
   - ground `#030C06`, surface `#0A1F11`, ink `#E1F4E8`, ink-dim `#72C08E`, hairline `#194328`, accent `#1DB954`.
@@ -31,9 +31,9 @@
 **Files:**
 - Create: `project.yml`
 - Create: `.gitignore`
-- Create: `Sources/SlicoClone/App/SlicoCloneApp.swift`
-- Create: `Sources/SlicoClone/App/AppDelegate.swift`
-- Create: `Tests/SlicoCloneTests/SanityTests.swift`
+- Create: `Sources/DAMiniPlayer/App/DAMiniPlayerApp.swift`
+- Create: `Sources/DAMiniPlayer/App/AppDelegate.swift`
+- Create: `Tests/DAMiniPlayerTests/SanityTests.swift`
 
 **Interfaces:**
 - Produces: an `AppDelegate` class (NSApplicationDelegate) that later tasks extend to own the status item and the floating panel.
@@ -46,7 +46,7 @@ Expected: XcodeGen installs successfully; `xcodegen --version` prints a version 
 - [ ] **Step 2: Write `project.yml`**
 
 ```yaml
-name: SlicoClone
+name: DAMiniPlayer
 options:
   bundleIdPrefix: com.pedro
   deploymentTarget:
@@ -57,38 +57,38 @@ settings:
     ENABLE_HARDENED_RUNTIME: true
     CODE_SIGN_STYLE: Automatic
 targets:
-  SlicoClone:
+  DAMiniPlayer:
     type: application
     platform: macOS
     sources:
-      - path: Sources/SlicoClone
+      - path: Sources/DAMiniPlayer
     info:
       properties:
         LSUIElement: true
         CFBundleURLTypes:
-          - CFBundleURLSchemes: [slico-clone]
-        NSAppleEventsUsageDescription: "Slico Clone needs to control Spotify to show what's playing and manage playback."
+          - CFBundleURLSchemes: [da-miniplayer]
+        NSAppleEventsUsageDescription: "DA Mini Player needs to control Spotify to show what's playing and manage playback."
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.pedro.slico-clone
+        PRODUCT_BUNDLE_IDENTIFIER: com.pedro.da-miniplayer
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: "1"
-  SlicoCloneTests:
+  DAMiniPlayerTests:
     type: bundle.unit-test
     platform: macOS
     sources:
-      - path: Tests/SlicoCloneTests
+      - path: Tests/DAMiniPlayerTests
     dependencies:
-      - target: SlicoClone
+      - target: DAMiniPlayer
 schemes:
-  SlicoClone:
+  DAMiniPlayer:
     build:
       targets:
-        SlicoClone: all
-        SlicoCloneTests: [test]
+        DAMiniPlayer: all
+        DAMiniPlayerTests: [test]
     test:
       targets:
-        - SlicoCloneTests
+        - DAMiniPlayerTests
     run:
       config: Debug
 ```
@@ -100,11 +100,11 @@ schemes:
 DerivedData/
 *.xcodeproj
 xcuserdata/
-Sources/SlicoClone/Resources/Config.plist
+Sources/DAMiniPlayer/Resources/Config.plist
 .DS_Store
 ```
 
-- [ ] **Step 4: Write `Sources/SlicoClone/App/AppDelegate.swift`**
+- [ ] **Step 4: Write `Sources/DAMiniPlayer/App/AppDelegate.swift`**
 
 ```swift
 import AppKit
@@ -119,7 +119,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusBarItem.button?.title = "♪"
 
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Quit Slico Clone", action: #selector(quit), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit DA Mini Player", action: #selector(quit), keyEquivalent: "q"))
         statusBarItem.menu = menu
 
         self.statusItem = statusBarItem
@@ -131,13 +131,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 ```
 
-- [ ] **Step 5: Write `Sources/SlicoClone/App/SlicoCloneApp.swift`**
+- [ ] **Step 5: Write `Sources/DAMiniPlayer/App/DAMiniPlayerApp.swift`**
 
 ```swift
 import SwiftUI
 
 @main
-struct SlicoCloneApp: App {
+struct DAMiniPlayerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
@@ -148,7 +148,7 @@ struct SlicoCloneApp: App {
 }
 ```
 
-- [ ] **Step 6: Write a trivial sanity test in `Tests/SlicoCloneTests/SanityTests.swift`**
+- [ ] **Step 6: Write a trivial sanity test in `Tests/DAMiniPlayerTests/SanityTests.swift`**
 
 ```swift
 import XCTest
@@ -162,18 +162,18 @@ final class SanityTests: XCTestCase {
 
 - [ ] **Step 7: Generate the Xcode project and build**
 
-Run: `xcodegen generate && xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -configuration Debug build`
+Run: `xcodegen generate && xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -configuration Debug build`
 Expected: `** BUILD SUCCEEDED **`
 
 - [ ] **Step 8: Run the test target**
 
-Run: `xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -destination 'platform=macOS' test`
+Run: `xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -destination 'platform=macOS' test`
 Expected: `** TEST SUCCEEDED **`, `testTrue` passes.
 
 - [ ] **Step 9: Manually launch and verify the menu bar item**
 
-Run: `open /path/to/DerivedData/.../SlicoClone.app` (or `xcodebuild -showBuildSettings` to find `BUILT_PRODUCTS_DIR`, then `open "$BUILT_PRODUCTS_DIR/SlicoClone.app"`)
-Expected: a "♪" icon appears in the menu bar, no Dock icon appears, clicking it shows a "Quit Slico Clone" item that quits the app.
+Run: `open /path/to/DerivedData/.../DAMiniPlayer.app` (or `xcodebuild -showBuildSettings` to find `BUILT_PRODUCTS_DIR`, then `open "$BUILT_PRODUCTS_DIR/DAMiniPlayer.app"`)
+Expected: a "♪" icon appears in the menu bar, no Dock icon appears, clicking it shows a "Quit DA Mini Player" item that quits the app.
 
 - [ ] **Step 10: Commit**
 
@@ -187,8 +187,8 @@ git commit -m "Scaffold XcodeGen project with minimal menu bar app"
 ## Task 2: Time Formatting (TDD)
 
 **Files:**
-- Create: `Sources/SlicoClone/Formatting/TimeFormatter.swift`
-- Test: `Tests/SlicoCloneTests/TimeFormatterTests.swift`
+- Create: `Sources/DAMiniPlayer/Formatting/TimeFormatter.swift`
+- Test: `Tests/DAMiniPlayerTests/TimeFormatterTests.swift`
 
 **Interfaces:**
 - Produces: `enum TimeFormatter { static func format(_ seconds: Double) -> String }`
@@ -197,7 +197,7 @@ git commit -m "Scaffold XcodeGen project with minimal menu bar app"
 
 ```swift
 import XCTest
-@testable import SlicoClone
+@testable import DAMiniPlayer
 
 final class TimeFormatterTests: XCTestCase {
     func testZero() {
@@ -232,7 +232,7 @@ final class TimeFormatterTests: XCTestCase {
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `xcodegen generate && xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -destination 'platform=macOS' test`
+Run: `xcodegen generate && xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -destination 'platform=macOS' test`
 Expected: FAIL — `TimeFormatter` does not exist.
 
 - [ ] **Step 3: Write the implementation**
@@ -253,13 +253,13 @@ enum TimeFormatter {
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -destination 'platform=macOS' test`
+Run: `xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -destination 'platform=macOS' test`
 Expected: `** TEST SUCCEEDED **`, all `TimeFormatterTests` pass.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Sources/SlicoClone/Formatting/TimeFormatter.swift Tests/SlicoCloneTests/TimeFormatterTests.swift
+git add Sources/DAMiniPlayer/Formatting/TimeFormatter.swift Tests/DAMiniPlayerTests/TimeFormatterTests.swift
 git commit -m "Add TimeFormatter with unit tests"
 ```
 
@@ -268,10 +268,10 @@ git commit -m "Add TimeFormatter with unit tests"
 ## Task 3: PKCE + Token Expiry Logic (TDD)
 
 **Files:**
-- Create: `Sources/SlicoClone/Auth/PKCE.swift`
-- Create: `Sources/SlicoClone/Auth/TokenExpiry.swift`
-- Test: `Tests/SlicoCloneTests/PKCETests.swift`
-- Test: `Tests/SlicoCloneTests/TokenExpiryTests.swift`
+- Create: `Sources/DAMiniPlayer/Auth/PKCE.swift`
+- Create: `Sources/DAMiniPlayer/Auth/TokenExpiry.swift`
+- Test: `Tests/DAMiniPlayerTests/PKCETests.swift`
+- Test: `Tests/DAMiniPlayerTests/TokenExpiryTests.swift`
 
 **Interfaces:**
 - Produces: `enum PKCE { static func generateCodeVerifier() -> String; static func codeChallenge(for verifier: String) -> String; static func base64URLEncode(_ data: Data) -> String }`
@@ -281,7 +281,7 @@ git commit -m "Add TimeFormatter with unit tests"
 
 ```swift
 import XCTest
-@testable import SlicoClone
+@testable import DAMiniPlayer
 
 final class PKCETests: XCTestCase {
     func testKnownVectorFromRFC7636() {
@@ -308,7 +308,7 @@ final class PKCETests: XCTestCase {
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `xcodegen generate && xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -destination 'platform=macOS' test`
+Run: `xcodegen generate && xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -destination 'platform=macOS' test`
 Expected: FAIL — `PKCE` does not exist.
 
 - [ ] **Step 3: Write the PKCE implementation**
@@ -340,14 +340,14 @@ enum PKCE {
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -destination 'platform=macOS' test`
+Run: `xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -destination 'platform=macOS' test`
 Expected: `** TEST SUCCEEDED **`, all `PKCETests` pass.
 
 - [ ] **Step 5: Write the failing TokenExpiry test**
 
 ```swift
 import XCTest
-@testable import SlicoClone
+@testable import DAMiniPlayer
 
 final class TokenExpiryTests: XCTestCase {
     func testNotYetExpired() {
@@ -369,7 +369,7 @@ final class TokenExpiryTests: XCTestCase {
 
 - [ ] **Step 6: Run test to verify it fails**
 
-Run: `xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -destination 'platform=macOS' test`
+Run: `xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -destination 'platform=macOS' test`
 Expected: FAIL — `TokenExpiry` does not exist.
 
 - [ ] **Step 7: Write the TokenExpiry implementation**
@@ -386,13 +386,13 @@ enum TokenExpiry {
 
 - [ ] **Step 8: Run tests to verify they pass**
 
-Run: `xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -destination 'platform=macOS' test`
+Run: `xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -destination 'platform=macOS' test`
 Expected: `** TEST SUCCEEDED **`, all tests pass.
 
 - [ ] **Step 9: Commit**
 
 ```bash
-git add Sources/SlicoClone/Auth/PKCE.swift Sources/SlicoClone/Auth/TokenExpiry.swift Tests/SlicoCloneTests/PKCETests.swift Tests/SlicoCloneTests/TokenExpiryTests.swift
+git add Sources/DAMiniPlayer/Auth/PKCE.swift Sources/DAMiniPlayer/Auth/TokenExpiry.swift Tests/DAMiniPlayerTests/PKCETests.swift Tests/DAMiniPlayerTests/TokenExpiryTests.swift
 git commit -m "Add PKCE and token expiry logic with unit tests"
 ```
 
@@ -401,9 +401,9 @@ git commit -m "Add PKCE and token expiry logic with unit tests"
 ## Task 4: NowPlaying Model + Spotify AppleScript Parser (TDD)
 
 **Files:**
-- Create: `Sources/SlicoClone/Models/NowPlaying.swift`
-- Create: `Sources/SlicoClone/Playback/SpotifyTrackParser.swift`
-- Test: `Tests/SlicoCloneTests/SpotifyTrackParserTests.swift`
+- Create: `Sources/DAMiniPlayer/Models/NowPlaying.swift`
+- Create: `Sources/DAMiniPlayer/Playback/SpotifyTrackParser.swift`
+- Test: `Tests/DAMiniPlayerTests/SpotifyTrackParserTests.swift`
 
 **Interfaces:**
 - Produces: `struct NowPlaying: Equatable { var trackID: String?; var title: String; var artist: String; var artworkURL: URL?; var position: Double; var duration: Double; var isPlaying: Bool; static let empty: NowPlaying }`
@@ -445,7 +445,7 @@ The raw format is a tab-separated string produced by the AppleScript in Task 5:
 
 ```swift
 import XCTest
-@testable import SlicoClone
+@testable import DAMiniPlayer
 
 final class SpotifyTrackParserTests: XCTestCase {
     func testParsesWellFormedLine() {
@@ -477,7 +477,7 @@ final class SpotifyTrackParserTests: XCTestCase {
 
 - [ ] **Step 3: Run tests to verify they fail**
 
-Run: `xcodegen generate && xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -destination 'platform=macOS' test`
+Run: `xcodegen generate && xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -destination 'platform=macOS' test`
 Expected: FAIL — `SpotifyTrackParser` does not exist.
 
 - [ ] **Step 4: Write `SpotifyTrackParser.swift`**
@@ -514,13 +514,13 @@ enum SpotifyTrackParser {
 
 - [ ] **Step 5: Run tests to verify they pass**
 
-Run: `xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -destination 'platform=macOS' test`
+Run: `xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -destination 'platform=macOS' test`
 Expected: `** TEST SUCCEEDED **`, all `SpotifyTrackParserTests` pass.
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add Sources/SlicoClone/Models/NowPlaying.swift Sources/SlicoClone/Playback/SpotifyTrackParser.swift Tests/SlicoCloneTests/SpotifyTrackParserTests.swift
+git add Sources/DAMiniPlayer/Models/NowPlaying.swift Sources/DAMiniPlayer/Playback/SpotifyTrackParser.swift Tests/DAMiniPlayerTests/SpotifyTrackParserTests.swift
 git commit -m "Add NowPlaying model and Spotify AppleScript output parser"
 ```
 
@@ -529,10 +529,10 @@ git commit -m "Add NowPlaying model and Spotify AppleScript output parser"
 ## Task 5: Player Theme (Colors + Space Mono Font)
 
 **Files:**
-- Create: `Sources/SlicoClone/Views/PlayerTheme.swift`
-- Create: `Sources/SlicoClone/Resources/Fonts/SpaceMono-Regular.ttf` (downloaded binary)
-- Create: `Sources/SlicoClone/Resources/Fonts/SpaceMono-Bold.ttf` (downloaded binary)
-- Test: `Tests/SlicoCloneTests/PlayerThemeTests.swift`
+- Create: `Sources/DAMiniPlayer/Views/PlayerTheme.swift`
+- Create: `Sources/DAMiniPlayer/Resources/Fonts/SpaceMono-Regular.ttf` (downloaded binary)
+- Create: `Sources/DAMiniPlayer/Resources/Fonts/SpaceMono-Bold.ttf` (downloaded binary)
+- Test: `Tests/DAMiniPlayerTests/PlayerThemeTests.swift`
 
 **Interfaces:**
 - Produces: `enum PlayerTheme { static let ground, surface, ink, inkDim, hairline, accent: Color; static func registerFonts(bundle: Bundle) }`
@@ -542,35 +542,35 @@ git commit -m "Add NowPlaying model and Spotify AppleScript output parser"
 
 Run:
 ```bash
-mkdir -p Sources/SlicoClone/Resources/Fonts
-curl -sL -o Sources/SlicoClone/Resources/Fonts/SpaceMono-Regular.ttf \
+mkdir -p Sources/DAMiniPlayer/Resources/Fonts
+curl -sL -o Sources/DAMiniPlayer/Resources/Fonts/SpaceMono-Regular.ttf \
   https://github.com/google/fonts/raw/main/ofl/spacemono/SpaceMono-Regular.ttf
-curl -sL -o Sources/SlicoClone/Resources/Fonts/SpaceMono-Bold.ttf \
+curl -sL -o Sources/DAMiniPlayer/Resources/Fonts/SpaceMono-Bold.ttf \
   https://github.com/google/fonts/raw/main/ofl/spacemono/SpaceMono-Bold.ttf
 ```
-Expected: both `.ttf` files exist and are non-empty (`ls -la Sources/SlicoClone/Resources/Fonts`).
+Expected: both `.ttf` files exist and are non-empty (`ls -la Sources/DAMiniPlayer/Resources/Fonts`).
 
 - [ ] **Step 2: Add the fonts directory as a resource for both targets in `project.yml`**
 
-Modify `project.yml`'s `SlicoClone` target to add a `resources` key (it currently has none), and add one to the `SlicoCloneTests` target too (it currently has none — the font files didn't exist yet when Task 1 wrote it):
+Modify `project.yml`'s `DAMiniPlayer` target to add a `resources` key (it currently has none), and add one to the `DAMiniPlayerTests` target too (it currently has none — the font files didn't exist yet when Task 1 wrote it):
 
 ```yaml
-  SlicoClone:
+  DAMiniPlayer:
     type: application
     platform: macOS
     sources:
-      - path: Sources/SlicoClone
+      - path: Sources/DAMiniPlayer
     resources:
-      - path: Sources/SlicoClone/Resources/Fonts
-  SlicoCloneTests:
+      - path: Sources/DAMiniPlayer/Resources/Fonts
+  DAMiniPlayerTests:
     type: bundle.unit-test
     platform: macOS
     sources:
-      - path: Tests/SlicoCloneTests
+      - path: Tests/DAMiniPlayerTests
     resources:
-      - path: Sources/SlicoClone/Resources/Fonts
+      - path: Sources/DAMiniPlayer/Resources/Fonts
     dependencies:
-      - target: SlicoClone
+      - target: DAMiniPlayer
 ```
 
 - [ ] **Step 3: Write the failing font registration test**
@@ -578,7 +578,7 @@ Modify `project.yml`'s `SlicoClone` target to add a `resources` key (it currentl
 ```swift
 import XCTest
 import AppKit
-@testable import SlicoClone
+@testable import DAMiniPlayer
 
 final class PlayerThemeTests: XCTestCase {
     func testFontsRegisterSuccessfully() {
@@ -601,7 +601,7 @@ private extension Int {
 
 - [ ] **Step 4: Run tests to verify they fail**
 
-Run: `xcodegen generate && xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -destination 'platform=macOS' test`
+Run: `xcodegen generate && xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -destination 'platform=macOS' test`
 Expected: FAIL — `PlayerTheme` does not exist.
 
 - [ ] **Step 5: Write `PlayerTheme.swift`**
@@ -638,12 +638,12 @@ extension Color {
 
 - [ ] **Step 6: Run tests to verify they pass**
 
-Run: `xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -destination 'platform=macOS' test`
+Run: `xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -destination 'platform=macOS' test`
 Expected: `** TEST SUCCEEDED **`, `PlayerThemeTests` pass.
 
 - [ ] **Step 7: Call `PlayerTheme.registerFonts()` at app launch**
 
-Modify `Sources/SlicoClone/App/AppDelegate.swift` — add this line as the first line inside `applicationDidFinishLaunching`:
+Modify `Sources/DAMiniPlayer/App/AppDelegate.swift` — add this line as the first line inside `applicationDidFinishLaunching`:
 
 ```swift
 func applicationDidFinishLaunching(_ notification: Notification) {
@@ -654,13 +654,13 @@ func applicationDidFinishLaunching(_ notification: Notification) {
 
 - [ ] **Step 8: Rebuild to confirm the app still builds**
 
-Run: `xcodegen generate && xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -configuration Debug build`
+Run: `xcodegen generate && xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -configuration Debug build`
 Expected: `** BUILD SUCCEEDED **`
 
 - [ ] **Step 9: Commit**
 
 ```bash
-git add project.yml Sources/SlicoClone/Views/PlayerTheme.swift Sources/SlicoClone/Resources/Fonts Sources/SlicoClone/App/AppDelegate.swift Tests/SlicoCloneTests/PlayerThemeTests.swift
+git add project.yml Sources/DAMiniPlayer/Views/PlayerTheme.swift Sources/DAMiniPlayer/Resources/Fonts Sources/DAMiniPlayer/App/AppDelegate.swift Tests/DAMiniPlayerTests/PlayerThemeTests.swift
 git commit -m "Add PlayerTheme colors and bundled Space Mono font"
 ```
 
@@ -669,10 +669,10 @@ git commit -m "Add PlayerTheme colors and bundled Space Mono font"
 ## Task 6: Mini Player UI (Mock Data) + Floating Panel
 
 **Files:**
-- Create: `Sources/SlicoClone/Views/MiniPlayerView.swift`
-- Create: `Sources/SlicoClone/Views/HeartButton.swift`
-- Create: `Sources/SlicoClone/App/MiniPlayerPanel.swift`
-- Modify: `Sources/SlicoClone/App/AppDelegate.swift`
+- Create: `Sources/DAMiniPlayer/Views/MiniPlayerView.swift`
+- Create: `Sources/DAMiniPlayer/Views/HeartButton.swift`
+- Create: `Sources/DAMiniPlayer/App/MiniPlayerPanel.swift`
+- Modify: `Sources/DAMiniPlayer/App/AppDelegate.swift`
 
 **Interfaces:**
 - Consumes: `NowPlaying` (Task 4), `PlayerTheme` (Task 5).
@@ -808,7 +808,7 @@ final class MiniPlayerPanel: NSPanel {
 
 - [ ] **Step 4: Wire the panel into `AppDelegate.swift`**
 
-Replace the full contents of `Sources/SlicoClone/App/AppDelegate.swift` with:
+Replace the full contents of `Sources/DAMiniPlayer/App/AppDelegate.swift` with:
 
 ```swift
 import AppKit
@@ -849,7 +849,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusBarItem.button?.title = "♪"
 
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Quit Slico Clone", action: #selector(quit), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit DA Mini Player", action: #selector(quit), keyEquivalent: "q"))
         statusBarItem.menu = menu
 
         self.statusItem = statusBarItem
@@ -863,24 +863,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 - [ ] **Step 5: Build**
 
-Run: `xcodegen generate && xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -configuration Debug build`
+Run: `xcodegen generate && xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -configuration Debug build`
 Expected: `** BUILD SUCCEEDED **`
 
 - [ ] **Step 6: Manually verify the panel visually**
 
 Run:
 ```bash
-BUILT_PRODUCTS_DIR=$(xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -configuration Debug -showBuildSettings | awk -F'= ' '/ BUILT_PRODUCTS_DIR/{print $2; exit}')
-open "$BUILT_PRODUCTS_DIR/SlicoClone.app"
+BUILT_PRODUCTS_DIR=$(xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -configuration Debug -showBuildSettings | awk -F'= ' '/ BUILT_PRODUCTS_DIR/{print $2; exit}')
+open "$BUILT_PRODUCTS_DIR/DAMiniPlayer.app"
 sleep 2
-screencapture -x /tmp/slico-clone-panel.png
+screencapture -x /tmp/da-miniplayer-panel.png
 ```
-Then read `/tmp/slico-clone-panel.png` (e.g. with the Read tool) and confirm: a small dark panel with "My Rival" / "Steely Dan", prev/play/next icons, a time label, and an outlined heart icon is visible on screen; drag it by clicking and holding on its body to confirm it moves. Quit the app afterward from its menu bar item (`killall SlicoClone` also works for cleanup).
+Then read `/tmp/da-miniplayer-panel.png` (e.g. with the Read tool) and confirm: a small dark panel with "My Rival" / "Steely Dan", prev/play/next icons, a time label, and an outlined heart icon is visible on screen; drag it by clicking and holding on its body to confirm it moves. Quit the app afterward from its menu bar item (`killall DAMiniPlayer` also works for cleanup).
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add Sources/SlicoClone/Views/MiniPlayerView.swift Sources/SlicoClone/Views/HeartButton.swift Sources/SlicoClone/App/MiniPlayerPanel.swift Sources/SlicoClone/App/AppDelegate.swift
+git add Sources/DAMiniPlayer/Views/MiniPlayerView.swift Sources/DAMiniPlayer/Views/HeartButton.swift Sources/DAMiniPlayer/App/MiniPlayerPanel.swift Sources/DAMiniPlayer/App/AppDelegate.swift
 git commit -m "Add floating mini player panel with mock data"
 ```
 
@@ -889,9 +889,9 @@ git commit -m "Add floating mini player panel with mock data"
 ## Task 7: Real Spotify Playback Integration
 
 **Files:**
-- Create: `Sources/SlicoClone/Playback/SpotifyScript.swift`
-- Create: `Sources/SlicoClone/Playback/PlaybackMonitor.swift`
-- Modify: `Sources/SlicoClone/App/AppDelegate.swift`
+- Create: `Sources/DAMiniPlayer/Playback/SpotifyScript.swift`
+- Create: `Sources/DAMiniPlayer/Playback/PlaybackMonitor.swift`
+- Modify: `Sources/DAMiniPlayer/App/AppDelegate.swift`
 
 **Interfaces:**
 - Consumes: `SpotifyTrackParser.parse` (Task 4), `NowPlaying` (Task 4).
@@ -1000,7 +1000,7 @@ final class PlaybackMonitor: ObservableObject {
 
 - [ ] **Step 3: Wire `PlaybackMonitor` into `AppDelegate`, replacing the mock data**
 
-Replace the full contents of `Sources/SlicoClone/App/AppDelegate.swift` with:
+Replace the full contents of `Sources/DAMiniPlayer/App/AppDelegate.swift` with:
 
 ```swift
 import AppKit
@@ -1029,7 +1029,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusBarItem.button?.title = "♪"
 
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Quit Slico Clone", action: #selector(quit), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit DA Mini Player", action: #selector(quit), keyEquivalent: "q"))
         statusBarItem.menu = menu
 
         self.statusItem = statusBarItem
@@ -1047,7 +1047,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 - [ ] **Step 4: Add a small container view that observes `PlaybackMonitor` and feeds `MiniPlayerView`**
 
-Create `Sources/SlicoClone/Views/MiniPlayerContainerView.swift`:
+Create `Sources/DAMiniPlayer/Views/MiniPlayerContainerView.swift`:
 
 ```swift
 import SwiftUI
@@ -1072,14 +1072,14 @@ struct MiniPlayerContainerView: View {
 
 - [ ] **Step 5: Build**
 
-Run: `xcodegen generate && xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -configuration Debug build`
+Run: `xcodegen generate && xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -configuration Debug build`
 Expected: `** BUILD SUCCEEDED **`
 
 - [ ] **Step 6: Manually verify against a real Spotify session**
 
 1. Open Spotify.app and start playing any track.
 2. Run the built app (same `open`/`BUILT_PRODUCTS_DIR` steps as Task 6).
-3. macOS will show an Automation permission prompt ("SlicoClone wants to control Spotify") — approve it.
+3. macOS will show an Automation permission prompt ("DAMiniPlayer wants to control Spotify") — approve it.
 4. Confirm the panel shows the real track title/artist and the time updates roughly every second.
 5. Click play/pause, next, and previous on the panel and confirm Spotify responds accordingly.
 6. Quit Spotify entirely and confirm the panel falls back to "Nothing playing" without crashing.
@@ -1087,7 +1087,7 @@ Expected: `** BUILD SUCCEEDED **`
 - [ ] **Step 7: Commit**
 
 ```bash
-git add Sources/SlicoClone/Playback/SpotifyScript.swift Sources/SlicoClone/Playback/PlaybackMonitor.swift Sources/SlicoClone/Views/MiniPlayerContainerView.swift Sources/SlicoClone/App/AppDelegate.swift
+git add Sources/DAMiniPlayer/Playback/SpotifyScript.swift Sources/DAMiniPlayer/Playback/PlaybackMonitor.swift Sources/DAMiniPlayer/Views/MiniPlayerContainerView.swift Sources/DAMiniPlayer/App/AppDelegate.swift
 git commit -m "Wire real Spotify playback state and transport controls via AppleScript"
 ```
 
@@ -1096,8 +1096,8 @@ git commit -m "Wire real Spotify playback state and transport controls via Apple
 ## Task 8: Keychain Token Storage
 
 **Files:**
-- Create: `Sources/SlicoClone/Auth/TokenStore.swift`
-- Test: `Tests/SlicoCloneTests/KeychainTokenStoreTests.swift`
+- Create: `Sources/DAMiniPlayer/Auth/TokenStore.swift`
+- Test: `Tests/DAMiniPlayerTests/KeychainTokenStoreTests.swift`
 
 **Interfaces:**
 - Produces: `protocol TokenStore { func saveRefreshToken(_ token: String); func loadRefreshToken() -> String?; func clear() }`
@@ -1116,7 +1116,7 @@ protocol TokenStore {
 }
 
 final class KeychainTokenStore: TokenStore {
-    private let service = "com.pedro.slico-clone.spotify"
+    private let service = "com.pedro.da-miniplayer.spotify"
     private let account = "refresh-token"
 
     func saveRefreshToken(_ token: String) {
@@ -1176,7 +1176,7 @@ final class InMemoryTokenStore: TokenStore {
 
 ```swift
 import XCTest
-@testable import SlicoClone
+@testable import DAMiniPlayer
 
 final class KeychainTokenStoreTests: XCTestCase {
     func testSaveLoadClearRoundTrip() {
@@ -1207,13 +1207,13 @@ final class KeychainTokenStoreTests: XCTestCase {
 
 - [ ] **Step 3: Run tests**
 
-Run: `xcodegen generate && xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -destination 'platform=macOS' test`
+Run: `xcodegen generate && xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -destination 'platform=macOS' test`
 Expected: `** TEST SUCCEEDED **`. If `testSaveLoadClearRoundTrip` fails with a Keychain access error (`errSecInteractionNotAllowed` or similar) rather than a logic error, this is a local code-signing/entitlements issue with running XCTest against the Keychain, not a bug in `KeychainTokenStore` — note it and proceed; `InMemoryTokenStore` is what later tasks' tests actually depend on for isolation, and the real login flow is verified manually in Task 9.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add Sources/SlicoClone/Auth/TokenStore.swift Tests/SlicoCloneTests/KeychainTokenStoreTests.swift
+git add Sources/DAMiniPlayer/Auth/TokenStore.swift Tests/DAMiniPlayerTests/KeychainTokenStoreTests.swift
 git commit -m "Add Keychain-backed and in-memory token stores"
 ```
 
@@ -1222,10 +1222,10 @@ git commit -m "Add Keychain-backed and in-memory token stores"
 ## Task 9: Spotify OAuth Login (PKCE)
 
 **Files:**
-- Create: `Sources/SlicoClone/Auth/Config.swift`
-- Create: `Sources/SlicoClone/Resources/Config.plist.example`
-- Create: `Sources/SlicoClone/Auth/SpotifyAuth.swift`
-- Modify: `Sources/SlicoClone/App/AppDelegate.swift`
+- Create: `Sources/DAMiniPlayer/Auth/Config.swift`
+- Create: `Sources/DAMiniPlayer/Resources/Config.plist.example`
+- Create: `Sources/DAMiniPlayer/Auth/SpotifyAuth.swift`
+- Modify: `Sources/DAMiniPlayer/App/AppDelegate.swift`
 - Create: `README.md`
 
 **Interfaces:**
@@ -1256,7 +1256,7 @@ enum Config {
               let data = try? Data(contentsOf: url),
               let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: String],
               let clientID = plist["SpotifyClientID"] else {
-            fatalError("Missing Sources/SlicoClone/Resources/Config.plist — copy Config.plist.example to Config.plist and fill in your Spotify app's client ID.")
+            fatalError("Missing Sources/DAMiniPlayer/Resources/Config.plist — copy Config.plist.example to Config.plist and fill in your Spotify app's client ID.")
         }
         return clientID
     }
@@ -1265,12 +1265,12 @@ enum Config {
 
 - [ ] **Step 3: Add `Config.plist` as a (gitignored, optional) resource in `project.yml`**
 
-Update the `SlicoClone` target's `resources` list:
+Update the `DAMiniPlayer` target's `resources` list:
 
 ```yaml
     resources:
-      - path: Sources/SlicoClone/Resources/Fonts
-      - path: Sources/SlicoClone/Resources/Config.plist
+      - path: Sources/DAMiniPlayer/Resources/Fonts
+      - path: Sources/DAMiniPlayer/Resources/Config.plist
         optional: true
 ```
 
@@ -1292,7 +1292,7 @@ final class SpotifyAuth: NSObject, ObservableObject, ASWebAuthenticationPresenta
     @Published private(set) var isLoggedIn: Bool
 
     private let clientID: String
-    private let redirectURI = "slico-clone://callback"
+    private let redirectURI = "da-miniplayer://callback"
     private let scopes = "user-library-read user-library-modify"
     private let tokenStore: TokenStore
     private var accessToken: String?
@@ -1321,7 +1321,7 @@ final class SpotifyAuth: NSObject, ObservableObject, ASWebAuthenticationPresenta
 
         let authSession = ASWebAuthenticationSession(
             url: components.url!,
-            callbackURLScheme: "slico-clone"
+            callbackURLScheme: "da-miniplayer"
         ) { [weak self] callbackURL, error in
             guard let self, let callbackURL, error == nil,
                   let code = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?
@@ -1406,7 +1406,7 @@ This class does real network + system UI work and is not unit tested directly �
 
 - [ ] **Step 5: Instantiate `SpotifyAuth` in `AppDelegate` and add menu items for login/logout**
 
-Replace the full contents of `Sources/SlicoClone/App/AppDelegate.swift` with:
+Replace the full contents of `Sources/DAMiniPlayer/App/AppDelegate.swift` with:
 
 ```swift
 import AppKit
@@ -1440,7 +1440,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let loginItem = NSMenuItem(title: loginTitle, action: #selector(toggleLogin), keyEquivalent: "")
         menu.addItem(loginItem)
         menu.addItem(NSMenuItem.separator())
-        menu.addItem(NSMenuItem(title: "Quit Slico Clone", action: #selector(quit), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit DA Mini Player", action: #selector(quit), keyEquivalent: "q"))
         statusBarItem.menu = menu
         self.loginMenuItem = loginItem
 
@@ -1476,7 +1476,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 - [ ] **Step 6: Write `README.md` with setup instructions**
 
 ```markdown
-# Slico Clone
+# DA Mini Player
 
 A native macOS floating mini player for Spotify with custom styling and a
 "Add to Liked Songs" button.
@@ -1493,29 +1493,29 @@ brew install xcodegen
 
 1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
    and create an app.
-2. Add `slico-clone://callback` as a Redirect URI in the app's settings.
+2. Add `da-miniplayer://callback` as a Redirect URI in the app's settings.
 3. Copy the app's Client ID.
 
 ### 3. Configure the client ID
 
 ```bash
-cp Sources/SlicoClone/Resources/Config.plist.example Sources/SlicoClone/Resources/Config.plist
+cp Sources/DAMiniPlayer/Resources/Config.plist.example Sources/DAMiniPlayer/Resources/Config.plist
 ```
 
-Edit `Sources/SlicoClone/Resources/Config.plist` and paste in your Client ID.
+Edit `Sources/DAMiniPlayer/Resources/Config.plist` and paste in your Client ID.
 
 ### 4. Build and run
 
 ```bash
 xcodegen generate
-xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -configuration Debug build
+xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -configuration Debug build
 ```
 
-Then open the built `SlicoClone.app` (find it via `xcodebuild -showBuildSettings`
-under `BUILT_PRODUCTS_DIR`), or open `SlicoClone.xcodeproj` in Xcode and run
+Then open the built `DAMiniPlayer.app` (find it via `xcodebuild -showBuildSettings`
+under `BUILT_PRODUCTS_DIR`), or open `DAMiniPlayer.xcodeproj` in Xcode and run
 from there.
 
-On first launch, macOS will prompt you to allow Slico Clone to control
+On first launch, macOS will prompt you to allow DA Mini Player to control
 Spotify — approve it so the mini player can read the current track and
 send playback commands.
 
@@ -1525,7 +1525,7 @@ the Liked Songs heart button.
 
 - [ ] **Step 7: Build and manually verify the login flow**
 
-Run: `xcodegen generate && xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -configuration Debug build`
+Run: `xcodegen generate && xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -configuration Debug build`
 Expected: `** BUILD SUCCEEDED **`
 
 Then:
@@ -1538,7 +1538,7 @@ Then:
 - [ ] **Step 8: Commit**
 
 ```bash
-git add Sources/SlicoClone/Auth/Config.swift Sources/SlicoClone/Resources/Config.plist.example Sources/SlicoClone/Auth/SpotifyAuth.swift Sources/SlicoClone/App/AppDelegate.swift project.yml README.md
+git add Sources/DAMiniPlayer/Auth/Config.swift Sources/DAMiniPlayer/Resources/Config.plist.example Sources/DAMiniPlayer/Auth/SpotifyAuth.swift Sources/DAMiniPlayer/App/AppDelegate.swift project.yml README.md
 git commit -m "Add Spotify OAuth PKCE login flow and setup instructions"
 ```
 
@@ -1547,9 +1547,9 @@ git commit -m "Add Spotify OAuth PKCE login flow and setup instructions"
 ## Task 10: Liked Songs Service
 
 **Files:**
-- Create: `Sources/SlicoClone/LikedSongs/SpotifyLibraryClient.swift`
-- Create: `Sources/SlicoClone/LikedSongs/LikedSongsService.swift`
-- Test: `Tests/SlicoCloneTests/LikedSongsServiceTests.swift`
+- Create: `Sources/DAMiniPlayer/LikedSongs/SpotifyLibraryClient.swift`
+- Create: `Sources/DAMiniPlayer/LikedSongs/LikedSongsService.swift`
+- Test: `Tests/DAMiniPlayerTests/LikedSongsServiceTests.swift`
 
 **Interfaces:**
 - Consumes: `SpotifyAuth.validAccessToken()` (Task 9).
@@ -1615,7 +1615,7 @@ final class SpotifyWebAPIClient: SpotifyLibraryClient {
 
 ```swift
 import XCTest
-@testable import SlicoClone
+@testable import DAMiniPlayer
 
 private final class FakeSpotifyLibraryClient: SpotifyLibraryClient {
     var containsResult: Result<Bool, Error> = .success(false)
@@ -1700,7 +1700,7 @@ final class LikedSongsServiceTests: XCTestCase {
 
 - [ ] **Step 3: Run tests to verify they fail**
 
-Run: `xcodegen generate && xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -destination 'platform=macOS' test`
+Run: `xcodegen generate && xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -destination 'platform=macOS' test`
 Expected: FAIL — `LikedSongsService` does not exist.
 
 - [ ] **Step 4: Write `LikedSongsService.swift`**
@@ -1743,13 +1743,13 @@ final class LikedSongsService: ObservableObject {
 
 - [ ] **Step 5: Run tests to verify they pass**
 
-Run: `xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -destination 'platform=macOS' test`
+Run: `xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -destination 'platform=macOS' test`
 Expected: `** TEST SUCCEEDED **`, all `LikedSongsServiceTests` pass.
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add Sources/SlicoClone/LikedSongs/SpotifyLibraryClient.swift Sources/SlicoClone/LikedSongs/LikedSongsService.swift Tests/SlicoCloneTests/LikedSongsServiceTests.swift
+git add Sources/DAMiniPlayer/LikedSongs/SpotifyLibraryClient.swift Sources/DAMiniPlayer/LikedSongs/LikedSongsService.swift Tests/DAMiniPlayerTests/LikedSongsServiceTests.swift
 git commit -m "Add LikedSongsService with optimistic like/unlike and unit tests"
 ```
 
@@ -1758,8 +1758,8 @@ git commit -m "Add LikedSongsService with optimistic like/unlike and unit tests"
 ## Task 11: Wire the Heart Button End-to-End
 
 **Files:**
-- Modify: `Sources/SlicoClone/Views/MiniPlayerContainerView.swift`
-- Modify: `Sources/SlicoClone/App/AppDelegate.swift`
+- Modify: `Sources/DAMiniPlayer/Views/MiniPlayerContainerView.swift`
+- Modify: `Sources/DAMiniPlayer/App/AppDelegate.swift`
 
 **Interfaces:**
 - Consumes: `LikedSongsService` (Task 10), `SpotifyAuth` (Task 9), `PlaybackMonitor` (Task 7), `MiniPlayerView` (Task 6, unchanged signature).
@@ -1801,7 +1801,7 @@ struct MiniPlayerContainerView: View {
 
 - [ ] **Step 2: Instantiate `LikedSongsService` in `AppDelegate` and pass it (and `auth`) into the container view**
 
-Replace the full contents of `Sources/SlicoClone/App/AppDelegate.swift` with:
+Replace the full contents of `Sources/DAMiniPlayer/App/AppDelegate.swift` with:
 
 ```swift
 import AppKit
@@ -1836,7 +1836,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let loginItem = NSMenuItem(title: loginTitle, action: #selector(toggleLogin), keyEquivalent: "")
         menu.addItem(loginItem)
         menu.addItem(NSMenuItem.separator())
-        menu.addItem(NSMenuItem(title: "Quit Slico Clone", action: #selector(quit), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit DA Mini Player", action: #selector(quit), keyEquivalent: "q"))
         statusBarItem.menu = menu
         self.loginMenuItem = loginItem
 
@@ -1871,12 +1871,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 - [ ] **Step 3: Build**
 
-Run: `xcodegen generate && xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -configuration Debug build`
+Run: `xcodegen generate && xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -configuration Debug build`
 Expected: `** BUILD SUCCEEDED **`
 
 - [ ] **Step 4: Run the full test suite one more time**
 
-Run: `xcodebuild -project SlicoClone.xcodeproj -scheme SlicoClone -destination 'platform=macOS' test`
+Run: `xcodebuild -project DAMiniPlayer.xcodeproj -scheme DAMiniPlayer -destination 'platform=macOS' test`
 Expected: `** TEST SUCCEEDED **`, every test from Tasks 2–10 still passes.
 
 - [ ] **Step 5: Manually verify the full end-to-end flow**
@@ -1891,6 +1891,6 @@ Expected: `** TEST SUCCEEDED **`, every test from Tasks 2–10 still passes.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add Sources/SlicoClone/Views/MiniPlayerContainerView.swift Sources/SlicoClone/App/AppDelegate.swift
+git add Sources/DAMiniPlayer/Views/MiniPlayerContainerView.swift Sources/DAMiniPlayer/App/AppDelegate.swift
 git commit -m "Wire Liked Songs heart button end-to-end"
 ```
