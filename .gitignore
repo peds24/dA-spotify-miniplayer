@@ -1,1 +1,8 @@
 .worktrees/
+.build/
+DerivedData/
+*.xcodeproj
+xcuserdata/
+Sources/DAMiniPlayer/Resources/Config.plist
+Sources/DAMiniPlayer/Info.plist
+.DS_Store

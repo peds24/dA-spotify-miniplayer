@@ -1,0 +1,49 @@
+name: DAMiniPlayer
+options:
+  bundleIdPrefix: com.pedro
+  deploymentTarget:
+    macOS: "13.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    ENABLE_HARDENED_RUNTIME: true
+    CODE_SIGN_STYLE: Automatic
+targets:
+  DAMiniPlayer:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/DAMiniPlayer
+    info:
+      path: Sources/DAMiniPlayer/Info.plist
+      properties:
+        LSUIElement: true
+        CFBundleURLTypes:
+          - CFBundleURLSchemes: [da-miniplayer]
+        NSAppleEventsUsageDescription: "DA Mini Player needs to control Spotify to show what's playing and manage playback."
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.pedro.da-miniplayer
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+  DAMiniPlayerTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests/DAMiniPlayerTests
+    dependencies:
+      - target: DAMiniPlayer
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  DAMiniPlayer:
+    build:
+      targets:
+        DAMiniPlayer: all
+        DAMiniPlayerTests: [test]
+    test:
+      targets:
+        - DAMiniPlayerTests
+    run:
+      config: Debug
