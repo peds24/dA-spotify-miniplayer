@@ -1572,6 +1572,7 @@ git commit -m "Add Spotify OAuth PKCE login flow and setup instructions"
 ```swift
 import Foundation
 
+@MainActor
 protocol SpotifyLibraryClient {
     func containsTrack(id: String) async throws -> Bool
     func saveTrack(id: String) async throws
@@ -1583,6 +1584,7 @@ enum SpotifyLibraryClientError: Error {
     case requestFailed
 }
 
+@MainActor
 final class SpotifyWebAPIClient: SpotifyLibraryClient {
     private let auth: SpotifyAuth
 
@@ -1629,6 +1631,7 @@ final class SpotifyWebAPIClient: SpotifyLibraryClient {
 import XCTest
 @testable import DAMiniPlayer
 
+@MainActor
 private final class FakeSpotifyLibraryClient: SpotifyLibraryClient {
     var containsResult: Result<Bool, Error> = .success(false)
     var saveResult: Result<Void, Error> = .success(())
