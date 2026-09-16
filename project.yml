@@ -14,6 +14,8 @@ targets:
     platform: macOS
     sources:
       - path: Sources/DAMiniPlayer
+    resources:
+      - path: Sources/DAMiniPlayer/Resources/Fonts
     info:
       path: Sources/DAMiniPlayer/Info.plist
       properties:
@@ -31,6 +33,8 @@ targets:
     platform: macOS
     sources:
       - path: Tests/DAMiniPlayerTests
+    resources:
+      - path: Sources/DAMiniPlayer/Resources/Fonts
     dependencies:
       - target: DAMiniPlayer
     settings:

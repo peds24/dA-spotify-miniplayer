@@ -4,6 +4,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        PlayerTheme.registerFonts()
         NSApp.setActivationPolicy(.accessory)
 
         let statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)

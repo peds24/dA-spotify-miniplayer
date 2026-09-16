@@ -578,11 +578,21 @@ Modify `project.yml`'s `DAMiniPlayer` target to add a `resources` key (it curren
 ```swift
 import XCTest
 import AppKit
+import SwiftUI
 @testable import DAMiniPlayer
 
 final class PlayerThemeTests: XCTestCase {
     func testFontsRegisterSuccessfully() {
-        let testBundle = Bundle(for: PlayerThemeTests.self)
+        // XcodeGen doesn't generate a Resources copy phase for the unit-test
+        // target when it shares an identical resource path with the app
+        // target, so the fonts never land inside DAMiniPlayerTests.xctest.
+        // Load them straight from source instead of via bundle resources.
+        let fontsDirectory = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("Sources/DAMiniPlayer/Resources/Fonts")
+        let testBundle = Bundle(url: fontsDirectory)!
         PlayerTheme.registerFonts(bundle: testBundle)
         XCTAssertNotNil(NSFont(name: "SpaceMono-Regular", size: 12))
         XCTAssertNotNil(NSFont(name: "SpaceMono-Bold", size: 12))
