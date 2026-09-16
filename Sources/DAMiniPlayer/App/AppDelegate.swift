@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var panel: MiniPlayerPanel?
     private let monitor = PlaybackMonitor()
     private let auth = SpotifyAuth(clientID: Config.spotifyClientID, tokenStore: KeychainTokenStore())
+    private lazy var likedSongs = LikedSongsService(client: SpotifyWebAPIClient(auth: auth))
     private var loginMenuItem: NSMenuItem?
     private var authCancellable: AnyCancellable?
 
@@ -16,7 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
 
         let panel = MiniPlayerPanel {
-            MiniPlayerContainerView(monitor: self.monitor)
+            MiniPlayerContainerView(monitor: self.monitor, likedSongs: self.likedSongs, auth: self.auth)
         }
         panel.orderFrontRegardless()
         self.panel = panel
