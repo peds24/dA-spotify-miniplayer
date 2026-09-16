@@ -16,6 +16,8 @@ targets:
       - path: Sources/DAMiniPlayer
     resources:
       - path: Sources/DAMiniPlayer/Resources/Fonts
+      - path: Sources/DAMiniPlayer/Resources/Config.plist
+        optional: true
     info:
       path: Sources/DAMiniPlayer/Info.plist
       properties:
