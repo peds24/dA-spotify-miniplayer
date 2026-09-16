@@ -1,36 +1,25 @@
 import AppKit
 import SwiftUI
+import Combine
 
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var panel: MiniPlayerPanel?
+    private let monitor = PlaybackMonitor()
+    private var cancellable: AnyCancellable?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         PlayerTheme.registerFonts()
         NSApp.setActivationPolicy(.accessory)
 
-        let mockNowPlaying = NowPlaying(
-            trackID: "mock",
-            title: "My Rival",
-            artist: "Steely Dan",
-            artworkURL: nil,
-            position: 42,
-            duration: 273,
-            isPlaying: true
-        )
-
         let panel = MiniPlayerPanel {
-            MiniPlayerView(
-                nowPlaying: mockNowPlaying,
-                isLiked: false,
-                onTogglePlay: {},
-                onNext: {},
-                onPrevious: {},
-                onToggleLike: {}
-            )
+            MiniPlayerContainerView(monitor: self.monitor)
         }
         panel.orderFrontRegardless()
         self.panel = panel
+
+        monitor.start()
 
         let statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         statusBarItem.button?.title = "♪"
@@ -40,6 +29,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusBarItem.menu = menu
 
         self.statusItem = statusBarItem
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        monitor.stop()
     }
 
     @objc private func quit() {
