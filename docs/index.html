@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DA Mini Player</title>
+<meta name="description" content="A floating, always-on-top Spotify mini player for macOS — playback controls, Liked Songs, and a menu bar home, with no Dock icon.">
+<link rel="icon" href="favicon-dark.png" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="favicon-light.png" media="(prefers-color-scheme: light)">
+<style>
+@font-face {
+  font-family: 'SpaceMono';
+  font-weight: 400;
+  src: url('fonts/SpaceMono-Regular.woff2') format('woff2');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SpaceMono';
+  font-weight: 700;
+  src: url('fonts/SpaceMono-Bold.woff2') format('woff2');
+  font-display: swap;
+}
+
+:root {
+  --ground: #030C06;
+  --surface: #0A1F11;
+  --surface-raised: #11311C;
+  --ink: #E1F4E8;
+  --ink-dim: #72C08E;
+  --hairline: #194328;
+  --accent: #1DB954;
+
+  --font-mono: 'SpaceMono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-round: ui-rounded, 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', system-ui, sans-serif;
+
+  --gutter: 1.75rem;
+  --section-y: 5rem;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --ground: #DCD6C8;
+    --surface: #E8E2D4;
+    --surface-raised: #F1ECDE;
+    --ink: #23261C;
+    --ink-dim: #545D48;
+    --hairline: #B8AF98;
+    --accent: #0B6B34;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  -webkit-text-size-adjust: 100%;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+img { max-width: 100%; display: block; }
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+}
+
+a { color: inherit; }
+
+/* ---------- nav ---------- */
+
+.nav {
+  border-bottom: 1px solid var(--hairline);
+}
+.nav .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-round);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.brand img { width: 22px; height: 22px; }
+.mark-light { display: none; }
+@media (prefers-color-scheme: light) {
+  .mark-dark { display: none; }
+  .mark-light { display: block; }
+}
+.brand .dot { color: var(--accent); }
+.nav-links {
+  display: flex;
+  gap: 22px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+.nav-links::-webkit-scrollbar { display: none; }
+.nav-links a {
+  font-size: 13px;
+  color: var(--ink-dim);
+  text-decoration: none;
+  text-transform: lowercase;
+  padding: 4px 0;
+}
+.nav-links a:hover { color: var(--accent); }
+
+/* ---------- hero ---------- */
+
+.hero {
+  padding-top: var(--section-y);
+  padding-bottom: calc(var(--section-y) * 0.7);
+  text-align: center;
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-dim);
+  border: 1px solid var(--hairline);
+  padding: 4px 10px;
+  margin-bottom: 22px;
+  text-transform: lowercase;
+}
+.eyebrow .status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+h1 {
+  font-family: var(--font-round);
+  font-weight: 700;
+  font-size: clamp(28px, 5vw, 46px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 auto 20px;
+  max-width: 18ch;
+}
+.lede {
+  color: var(--ink-dim);
+  max-width: 56ch;
+  margin: 0 auto 8px;
+  font-size: clamp(14px, 1.6vw, 16px);
+}
+.alpha-note {
+  color: var(--ink-dim);
+  max-width: 56ch;
+  margin: 14px auto 34px;
+  font-size: 13px;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  padding: 10px 0;
+}
+.alpha-note strong { color: var(--ink); }
+
+.cta-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  font-family: inherit;
+  font-size: 14px;
+  text-decoration: none;
+  border: 1px solid var(--hairline);
+  min-height: 44px;
+  cursor: pointer;
+}
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--ground);
+  font-weight: 700;
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--ink);
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+.btn-primary:hover { opacity: 0.88; }
+
+/* ---------- showcase ---------- */
+
+.showcase { padding: var(--section-y) 0; border-top: 1px solid var(--hairline); }
+.showcase-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  max-width: 520px;
+  margin: 0 auto 24px;
+}
+.showcase-hero figure { margin: 0; }
+.showcase-wide { max-width: 640px; margin: 0 auto; }
+.showcase-wide + .showcase-wide { margin-top: 16px; }
+figure img {
+  border-radius: 10px;
+  width: 100%;
+}
+figcaption {
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-dim);
+  margin-top: 10px;
+}
+
+/* ---------- features ---------- */
+
+.features { padding: var(--section-y) 0; border-top: 1px solid var(--hairline); }
+.section-title {
+  font-family: var(--font-round);
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 8px;
+}
+.section-sub {
+  text-align: center;
+  color: var(--ink-dim);
+  font-size: 13px;
+  margin: 0 0 40px;
+}
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+}
+.feature-card {
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  padding: 18px 18px 20px;
+}
+.feature-card .glyph {
+  color: var(--accent);
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.feature-card h3 {
+  font-size: 14px;
+  margin: 0 0 6px;
+  font-weight: 700;
+}
+.feature-card p {
+  font-size: 13px;
+  color: var(--ink-dim);
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* ---------- get started ---------- */
+
+.get-started { padding: var(--section-y) 0; border-top: 1px solid var(--hairline); }
+.install-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.install-card {
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  padding: 20px;
+}
+.install-card h3 {
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+pre {
+  background: var(--ground);
+  border: 1px solid var(--hairline);
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-x: auto;
+  margin: 0;
+  white-space: pre;
+}
+.install-card p {
+  font-size: 12px;
+  color: var(--ink-dim);
+  margin: 12px 0 0;
+  line-height: 1.6;
+}
+.install-card a { color: var(--accent); text-decoration: underline; }
+.requirements {
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-dim);
+  margin: 32px 0 0;
+}
+
+/* ---------- footer ---------- */
+
+footer {
+  border-top: 1px solid var(--hairline);
+  padding: 32px 0 calc(32px + env(safe-area-inset-bottom, 0px));
+}
+.footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 18px;
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+footer a { text-decoration: none; }
+footer a:hover { color: var(--accent); }
+.footer-copy {
+  text-align: center;
+  font-size: 11px;
+  color: var(--ink-dim);
+  margin-top: 16px;
+  opacity: 0.7;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 900px) {
+  :root { --gutter: 1.4rem; --section-y: 3.5rem; }
+  h1 { max-width: 22ch; }
+}
+
+@media (max-width: 640px) {
+  :root { --gutter: 1rem; --section-y: 3rem; }
+  .cta-row { flex-direction: column; align-items: stretch; }
+  .btn { justify-content: center; width: 100%; }
+  .showcase-hero { grid-template-columns: 1fr; max-width: 280px; }
+  .nav-links { gap: 16px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <img class="mark-dark" src="mark-dark.svg" alt="">
+      <img class="mark-light" src="mark-light.svg" alt="">
+      da<span class="dot">.</span>miniplayer
+    </a>
+    <div class="nav-links">
+      <a href="#showcase">showcase</a>
+      <a href="#features">features</a>
+      <a href="#get-started">get started</a>
+      <a href="https://github.com/peds24/dA-spotify-miniplayer">github</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow"><span class="status-dot"></span> macOS · menu bar app</span>
+    <h1>A floating Spotify mini player that lives on your desktop</h1>
+    <p class="lede">
+      A small, always-on-top, draggable panel showing what's playing on
+      Spotify — with playback controls and a one-click button to add the
+      current song to your Liked Songs. No Dock icon, no browser tab,
+      just the track.
+    </p>
+    <p class="alpha-note">
+      🚧 <strong>Alpha</strong> — v1.0.0 is a first, working-but-rough cut.
+      Expect bugs and breaking changes before a stable 1.0.
+    </p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://github.com/peds24/dA-spotify-miniplayer/releases/tag/v1.0.0">Download v1.0.0</a>
+      <a class="btn btn-secondary" href="https://github.com/peds24/dA-spotify-miniplayer">View on GitHub</a>
+    </div>
+  </div>
+</header>
+
+<section class="showcase" id="showcase">
+  <div class="wrap">
+    <h2 class="section-title">Compact or expanded, day or night</h2>
+    <p class="section-sub">Real screenshots — the panel follows macOS's system appearance automatically.</p>
+
+    <div class="showcase-hero">
+      <figure>
+        <img src="screenshots/expanded-dark.png" alt="Expanded player, dark theme, showing album art, track title, artist, and playback controls">
+        <figcaption>Expanded · dark</figcaption>
+      </figure>
+      <figure>
+        <img src="screenshots/expanded-light.png" alt="Expanded player, light theme">
+        <figcaption>Expanded · light</figcaption>
+      </figure>
+    </div>
+
+    <div class="showcase-wide">
+      <figure>
+        <img src="screenshots/compact-dark.png" alt="Compact player bar, dark theme, showing track info, transport controls, and the close/expand chrome buttons">
+        <figcaption>Compact · dark — close and expand/collapse controls on the right</figcaption>
+      </figure>
+    </div>
+    <div class="showcase-wide">
+      <figure>
+        <img src="screenshots/compact-light.png" alt="Compact player bar, light theme">
+        <figcaption>Compact · light</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="wrap">
+    <h2 class="section-title">What it does</h2>
+    <p class="section-sub">Nothing more than a mini player needs.</p>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="glyph">▨</div>
+        <h3>Floating panel</h3>
+        <p>Drag it anywhere on screen. Stays on top of other windows, on every Space.</p>
+      </div>
+      <div class="feature-card">
+        <div class="glyph">⌄</div>
+        <h3>Compact &amp; expanded</h3>
+        <p>Toggle layouts with the chevron on the panel itself — a slim bar or a full album-art view.</p>
+      </div>
+      <div class="feature-card">
+        <div class="glyph">♪</div>
+        <h3>Live now playing</h3>
+        <p>Track, artist, and artwork read straight from the Spotify desktop app. Long titles scroll in a looping marquee.</p>
+      </div>
+      <div class="feature-card">
+        <div class="glyph">▶</div>
+        <h3>Playback controls</h3>
+        <p>Previous, play/pause, next — right from the panel, no need to switch to Spotify.</p>
+      </div>
+      <div class="feature-card">
+        <div class="glyph">♥</div>
+        <h3>Liked Songs, one click</h3>
+        <p>The heart button adds the current track and reflects whether it's already liked.</p>
+      </div>
+      <div class="feature-card">
+        <div class="glyph">◐</div>
+        <h3>Light &amp; dark themes</h3>
+        <p>Follows macOS's system appearance automatically — no toggle to manage.</p>
+      </div>
+      <div class="feature-card">
+        <div class="glyph">×</div>
+        <h3>Close, right there</h3>
+        <p>A close button on the panel, next to expand/collapse — no digging through the menu bar.</p>
+      </div>
+      <div class="feature-card">
+        <div class="glyph">▤</div>
+        <h3>Menu bar home</h3>
+        <p>No Dock icon. Right-click the panel itself to reach Log In/Out, layout, Settings, and Quit.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="get-started" id="get-started">
+  <div class="wrap">
+    <h2 class="section-title">Get started</h2>
+    <p class="section-sub">Requires macOS 13 or later, and the Spotify desktop app running.</p>
+    <div class="install-grid">
+      <div class="install-card">
+        <h3>Homebrew</h3>
+        <pre>brew tap peds24/tap
+brew trust peds24/tap
+brew install --cask da-miniplayer</pre>
+        <p>Not notarized yet (no paid Apple Developer ID) — the cask clears the Gatekeeper quarantine flag on install so it opens normally.</p>
+      </div>
+      <div class="install-card">
+        <h3>Manual download</h3>
+        <pre>DAMiniPlayer-v1.0.0.zip → /Applications</pre>
+        <p>Download from the <a href="https://github.com/peds24/dA-spotify-miniplayer/releases/tag/v1.0.0">v1.0.0 release</a>, unzip, and move <code>DAMiniPlayer.app</code> to <code>/Applications</code>. Since it's unsigned, right-click and choose "Open" the first time instead of double-clicking.</p>
+      </div>
+    </div>
+    <p class="requirements">
+      Liked Songs currently needs your Spotify account allow-listed by
+      <a href="https://github.com/peds24">@peds24</a> (Spotify's Development
+      Mode cap) — playback controls and now-playing info work for everyone.
+      See the <a href="https://github.com/peds24/dA-spotify-miniplayer#liked-songs-access">README</a> for details.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-row">
+      <a href="https://github.com/peds24/dA-spotify-miniplayer">Source on GitHub</a>
+      <a href="https://github.com/peds24/dA-spotify-miniplayer/releases">Releases</a>
+      <a href="https://github.com/peds24/dA-spotify-miniplayer/blob/main/README.md">README</a>
+      <a href="https://github.com/peds24/dA-spotify-miniplayer/blob/main/LICENSE">GPL-3.0</a>
+    </div>
+    <p class="footer-copy">Copyright © 2026 Pedro Serdio Hank</p>
+  </div>
+</footer>
+
+</body>
+</html>
