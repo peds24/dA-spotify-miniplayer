@@ -41,15 +41,17 @@ final class SpotifyAuth: NSObject, ObservableObject, ASWebAuthenticationPresenta
         ]
 
         // ASWebAuthenticationSession invokes this completion handler on a
-        // background XPC queue, not the main actor. Since the closure
-        // captures `self` (a @MainActor type), Swift infers it as
-        // @MainActor-isolated, and calling it off-actor traps at runtime.
-        // Hop to the main actor first — nothing here may touch `self`
-        // synchronously outside the Task.
+        // background XPC queue, not the main actor. Written inline inside a
+        // @MainActor method, Swift infers the closure itself as
+        // @MainActor-isolated regardless of what's inside it, and the
+        // runtime's isolation check on entry traps when it's actually called
+        // off-actor. Marking it @Sendable stops that inference — the closure
+        // becomes callable from any thread, and only the inner Task hops
+        // back to the main actor before touching `self`.
         let authSession = ASWebAuthenticationSession(
             url: components.url!,
             callbackURLScheme: "da-miniplayer"
-        ) { [weak self] callbackURL, error in
+        ) { @Sendable [weak self] callbackURL, error in
             Task { @MainActor in
                 guard let self, let callbackURL, error == nil,
                       let code = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?
