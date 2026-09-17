@@ -118,7 +118,10 @@ final class SpotifyAuth: NSObject, ObservableObject, ASWebAuthenticationPresenta
             .joined(separator: "&")
             .data(using: .utf8)
 
-        guard let (data, _) = try? await URLSession.shared.data(for: request) else { return nil }
+        guard let (data, response) = try? await URLSession.shared.data(for: request),
+              let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            return nil
+        }
         return try? JSONDecoder().decode(SpotifyTokenResponse.self, from: data)
     }
 
