@@ -18,6 +18,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var expandedMenuItem: NSMenuItem?
     private var authCancellable: AnyCancellable?
     private var layoutCancellable: AnyCancellable?
+    private var settingsWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // The DAMiniPlayerTests bundle is hosted inside this app (XcodeGen
@@ -31,17 +32,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         PlayerTheme.registerFonts()
         NSApp.setActivationPolicy(.accessory)
 
-        let panel = MiniPlayerPanel {
-            MiniPlayerContainerView(monitor: self.monitor, likedSongs: self.likedSongs, auth: self.auth, layoutState: self.layoutState)
-        }
-        panel.orderFrontRegardless()
-        self.panel = panel
-
-        monitor.start()
-
-        let statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        statusBarItem.button?.title = "♪"
-
         let menu = NSMenu()
         let loginItem = NSMenuItem(title: loginTitle, action: #selector(toggleLogin), keyEquivalent: "")
         menu.addItem(loginItem)
@@ -54,11 +44,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem(title: "Settings…", action: #selector(showSettings), keyEquivalent: ","))
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit DA Mini Player", action: #selector(quit), keyEquivalent: "q"))
-        statusBarItem.menu = menu
         self.loginMenuItem = loginItem
         self.compactMenuItem = compactItem
         self.expandedMenuItem = expandedItem
         updateLayoutMenuState()
+
+        // Reused as-is for the panel's right-click menu (MiniPlayerPanel.contextMenu)
+        // — same NSMenu instance, same items, same responder-chain-dispatched actions.
+        let panel = MiniPlayerPanel {
+            MiniPlayerContainerView(monitor: self.monitor, likedSongs: self.likedSongs, auth: self.auth, layoutState: self.layoutState)
+        }
+        panel.contextMenu = menu
+        panel.orderFrontRegardless()
+        self.panel = panel
+
+        monitor.start()
+
+        let statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        statusBarItem.button?.title = "♪"
+        statusBarItem.menu = menu
 
         authCancellable = auth.$isLoggedIn.sink { [weak self] _ in
             self?.loginMenuItem?.title = self?.loginTitle ?? ""
@@ -101,9 +105,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         layoutState.mode = .expanded
     }
 
+    // SwiftUI's `Settings` scene relies on a private, undocumented selector
+    // (showSettingsWindow:) to open its window. That's unreliable for an
+    // accessory (LSUIElement) app with no main menu/Dock icon — there's no
+    // guarantee anything in the responder chain implements it, and in
+    // practice it silently did nothing here. Managing the window directly
+    // sidesteps the private API entirely.
     @objc private func showSettings() {
+        if let settingsWindow {
+            settingsWindow.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+        let hosting = NSHostingController(rootView: SettingsView(appDelegate: self))
+        let window = NSWindow(contentViewController: hosting)
+        window.title = "DA Mini Player Settings"
+        window.styleMask = [.titled, .closable]
+        window.isReleasedWhenClosed = false
+        window.center()
+        settingsWindow = window
+        window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }
 
     @objc private func quit() {
