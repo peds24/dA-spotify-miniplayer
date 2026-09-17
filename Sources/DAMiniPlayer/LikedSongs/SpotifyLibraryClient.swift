@@ -20,9 +20,14 @@ final class SpotifyWebAPIClient: SpotifyLibraryClient {
         self.auth = auth
     }
 
+    // Spotify deprecated the /v1/me/tracks* endpoints (ids param) in favor of
+    // the unified /v1/me/library endpoints (uris param, spotify:track:<id>
+    // URIs) — see https://developer.spotify.com/documentation/web-api/reference/save-library-items.
+    // The old save/remove paths no longer even appear in current docs.
+
     func containsTrack(id: String) async throws -> Bool {
         guard let token = await auth.validAccessToken() else { throw SpotifyLibraryClientError.notAuthenticated }
-        var request = URLRequest(url: URL(string: "https://api.spotify.com/v1/me/tracks/contains?ids=\(id)")!)
+        var request = URLRequest(url: libraryURL(for: id))
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
@@ -42,12 +47,18 @@ final class SpotifyWebAPIClient: SpotifyLibraryClient {
 
     private func mutate(id: String, method: String) async throws {
         guard let token = await auth.validAccessToken() else { throw SpotifyLibraryClientError.notAuthenticated }
-        var request = URLRequest(url: URL(string: "https://api.spotify.com/v1/me/tracks?ids=\(id)")!)
+        var request = URLRequest(url: libraryURL(for: id, contains: false))
         request.httpMethod = method
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         let (_, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
             throw SpotifyLibraryClientError.requestFailed
         }
+    }
+
+    private func libraryURL(for id: String, contains: Bool = true) -> URL {
+        var components = URLComponents(string: "https://api.spotify.com/v1/me/library\(contains ? "/contains" : "")")!
+        components.queryItems = [URLQueryItem(name: "uris", value: "spotify:track:\(id)")]
+        return components.url!
     }
 }
