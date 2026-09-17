@@ -7,12 +7,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var panel: MiniPlayerPanel?
     private let monitor = PlaybackMonitor()
-    private let auth = SpotifyAuth(clientID: Config.spotifyClientID, tokenStore: KeychainTokenStore())
+    private lazy var auth = SpotifyAuth(clientID: Config.spotifyClientID, tokenStore: KeychainTokenStore())
     private lazy var likedSongs = LikedSongsService(client: SpotifyWebAPIClient(auth: auth))
     private var loginMenuItem: NSMenuItem?
     private var authCancellable: AnyCancellable?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // The DAMiniPlayerTests bundle is hosted inside this app (XcodeGen
+        // wires a unit-test target's dependency on an application target as
+        // TEST_HOST), so `xcodebuild test` launches this app for real. None
+        // of the actual tests touch app state, so skip setup entirely rather
+        // than eagerly evaluate `auth` (which requires Config.plist) just to
+        // host the test bundle.
+        guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
+
         PlayerTheme.registerFonts()
         NSApp.setActivationPolicy(.accessory)
 
