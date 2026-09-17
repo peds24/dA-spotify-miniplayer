@@ -1,5 +1,10 @@
 # dA Spotify Mini Player
 
+🚧 **Alpha** — the [v1.0.0 release](https://github.com/peds24/dA-spotify-miniplayer/releases/tag/v1.0.0)
+is a first, working-but-rough cut. Expect bugs and breaking changes before a
+stable 1.0. See [Liked Songs access](#liked-songs-access) below for a current
+limitation on the heart button.
+
 A native macOS floating mini player for Spotify. It sits as a small,
 always-on-top, draggable panel showing the current track, with playback
 controls and a button to add the current song straight to your Spotify
@@ -13,14 +18,49 @@ Liked Songs.
 - Playback controls: previous / play-pause / next
 - One-click "Add to Liked Songs," with the heart reflecting whether the
   current track is already liked
-- Lives in the menu bar — no Dock icon
+- Lives in the menu bar — no Dock icon; right-click the floating panel itself
+  to reach the same menu (Log In/Out, layout, Settings, Quit)
+- A dedicated Settings window (⌘,) alongside the menu bar dropdown
 
 ## Requirements
 
 - macOS 13.0 or later
 - The [Spotify](https://www.spotify.com/download/) desktop app, running
 
-## Setup
+## Install
+
+### Homebrew
+
+```bash
+brew tap peds24/tap
+brew trust peds24/tap
+brew install --cask da-miniplayer
+```
+
+This installs the same ad-hoc-signed build attached to the
+[v1.0.0 release](https://github.com/peds24/dA-spotify-miniplayer/releases/tag/v1.0.0)
+(no paid Apple Developer identity yet, so it isn't notarized — the cask
+clears the Gatekeeper quarantine flag on install so it opens normally).
+
+### Manual download
+
+Download `DAMiniPlayer-v1.0.0.zip` from the
+[v1.0.0 release](https://github.com/peds24/dA-spotify-miniplayer/releases/tag/v1.0.0),
+unzip, and move `DAMiniPlayer.app` to `/Applications`. Since it's unsigned,
+right-click the app and choose "Open" the first time instead of double-clicking,
+or it'll be blocked by Gatekeeper.
+
+### Liked Songs access
+
+The heart button and Settings' Spotify login run through this app's own
+Spotify integration, which Spotify currently caps at a small number of
+allow-listed accounts (their "Development Mode" limit) — so for now, liking
+songs only works if [@peds24](https://github.com/peds24) has added your
+Spotify account to that allow-list; message to be added. Playback controls
+and now-playing info don't need this and work for everyone. A future release
+will move to Spotify's extended-access mode so anyone can use it.
+
+## Build from source
 
 ### 1. Install dependencies
 
