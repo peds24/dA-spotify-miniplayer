@@ -8,12 +8,14 @@ struct MiniPlayerContainerView: View {
 
     var body: some View {
         content
+            .onAppear(perform: refreshLikedStateIfNeeded)
             // Single-value onChange (not the two-value macOS 14+ overload) —
-            // deployment target here is macOS 13.
-            .onChange(of: monitor.nowPlaying.trackID) { newID in
-                guard auth.isLoggedIn, let newID else { return }
-                Task { await likedSongs.refreshLikedState(for: newID) }
-            }
+            // deployment target here is macOS 13. Refresh on either the
+            // track changing OR login completing — logging in while a
+            // track is already playing doesn't change trackID, so that
+            // transition needs its own trigger too.
+            .onChange(of: monitor.nowPlaying.trackID) { _ in refreshLikedStateIfNeeded() }
+            .onChange(of: auth.isLoggedIn) { _ in refreshLikedStateIfNeeded() }
     }
 
     @ViewBuilder
@@ -50,5 +52,10 @@ struct MiniPlayerContainerView: View {
             return
         }
         Task { await likedSongs.toggleLike(for: trackID) }
+    }
+
+    private func refreshLikedStateIfNeeded() {
+        guard auth.isLoggedIn, let trackID = monitor.nowPlaying.trackID else { return }
+        Task { await likedSongs.refreshLikedState(for: trackID) }
     }
 }
