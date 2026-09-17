@@ -7,9 +7,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var panel: MiniPlayerPanel?
     private let monitor = PlaybackMonitor()
-    private lazy var auth = SpotifyAuth(clientID: Config.spotifyClientID, tokenStore: KeychainTokenStore())
+    // Not private: SettingsView reads these, but only once the Settings
+    // window actually opens (see SettingsView's doc comment) — well after
+    // launch, so touching these lazy properties there is safe.
+    lazy var auth = SpotifyAuth(clientID: Config.spotifyClientID, tokenStore: KeychainTokenStore())
     private lazy var likedSongs = LikedSongsService(client: SpotifyWebAPIClient(auth: auth))
-    private let layoutState = PlayerLayoutState()
+    let layoutState = PlayerLayoutState()
     private var loginMenuItem: NSMenuItem?
     private var compactMenuItem: NSMenuItem?
     private var expandedMenuItem: NSMenuItem?
@@ -47,6 +50,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let expandedItem = NSMenuItem(title: "Expanded", action: #selector(selectExpanded), keyEquivalent: "")
         menu.addItem(compactItem)
         menu.addItem(expandedItem)
+        menu.addItem(NSMenuItem.separator())
+        menu.addItem(NSMenuItem(title: "Settings…", action: #selector(showSettings), keyEquivalent: ","))
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit DA Mini Player", action: #selector(quit), keyEquivalent: "q"))
         statusBarItem.menu = menu
@@ -94,6 +99,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func selectExpanded() {
         layoutState.mode = .expanded
+    }
+
+    @objc private func showSettings() {
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }
 
     @objc private func quit() {

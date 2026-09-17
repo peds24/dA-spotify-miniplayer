@@ -1,13 +1,16 @@
 import Foundation
 import Security
 
-protocol TokenStore {
+// Sendable so callers can run the (blocking) Keychain calls off the main
+// actor — see SpotifyAuth.init, which defers its initial login-state read
+// to a detached task rather than blocking whatever constructs it.
+protocol TokenStore: Sendable {
     func saveRefreshToken(_ token: String)
     func loadRefreshToken() -> String?
     func clear()
 }
 
-final class KeychainTokenStore: TokenStore {
+final class KeychainTokenStore: TokenStore, Sendable {
     private let service: String
     private let account = "refresh-token"
 
@@ -55,7 +58,10 @@ final class KeychainTokenStore: TokenStore {
     }
 }
 
-final class InMemoryTokenStore: TokenStore {
+// Test-only; never accessed from more than one thread at a time in
+// practice, but the mutable `token` isn't provably data-race-safe, hence
+// @unchecked rather than plain Sendable.
+final class InMemoryTokenStore: TokenStore, @unchecked Sendable {
     private var token: String?
 
     func saveRefreshToken(_ token: String) {

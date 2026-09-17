@@ -23,8 +23,19 @@ final class SpotifyAuth: NSObject, ObservableObject, ASWebAuthenticationPresenta
     init(clientID: String, tokenStore: TokenStore) {
         self.clientID = clientID
         self.tokenStore = tokenStore
-        self.isLoggedIn = tokenStore.loadRefreshToken() != nil
+        self.isLoggedIn = false
         super.init()
+        // Keychain reads block the calling thread. Checking synchronously
+        // here would block whatever constructs this object — in practice,
+        // the mini player panel's SwiftUI content closure during app
+        // launch — freezing the whole launch sequence (no panel, no menu
+        // bar item) if the read needs a pending permission dialog resolved
+        // first. Defer it instead; isLoggedIn briefly starts false even for
+        // an already-logged-in user, correcting itself within milliseconds.
+        Task {
+            let hasToken = await Task.detached(priority: .utility) { tokenStore.loadRefreshToken() != nil }.value
+            isLoggedIn = hasToken
+        }
     }
 
     func login() {

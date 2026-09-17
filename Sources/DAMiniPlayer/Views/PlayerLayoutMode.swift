@@ -1,7 +1,7 @@
 import CoreGraphics
 import Combine
 
-enum PlayerLayoutMode: Equatable {
+enum PlayerLayoutMode: Hashable {
     case compact
     case expanded
 
