@@ -3,7 +3,10 @@ import XCTest
 
 final class KeychainTokenStoreTests: XCTestCase {
     func testSaveLoadClearRoundTrip() {
-        let store = KeychainTokenStore()
+        // A distinct service identifier — the default matches the real app's
+        // own storage, and sharing it here would delete a real logged-in
+        // user's Spotify refresh token every time this test runs.
+        let store = KeychainTokenStore(service: "com.pedro.da-miniplayer.spotify.test")
         store.clear()
         XCTAssertNil(store.loadRefreshToken())
 

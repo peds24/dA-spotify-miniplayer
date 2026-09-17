@@ -8,8 +8,16 @@ protocol TokenStore {
 }
 
 final class KeychainTokenStore: TokenStore {
-    private let service = "com.pedro.da-miniplayer.spotify"
+    private let service: String
     private let account = "refresh-token"
+
+    /// `service` defaults to the real app's identifier. Tests must pass a
+    /// distinct value — the default is also what the running app uses to
+    /// store the user's real Spotify refresh token, and a test that shares
+    /// it will silently delete that real credential every time it runs.
+    init(service: String = "com.pedro.da-miniplayer.spotify") {
+        self.service = service
+    }
 
     func saveRefreshToken(_ token: String) {
         clear()
