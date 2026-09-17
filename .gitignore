@@ -1,6 +1,8 @@
 .worktrees/
 .build/
 DerivedData/
+build/
+build_test/
 *.xcodeproj
 xcuserdata/
 Sources/DAMiniPlayer/Resources/Config.plist
