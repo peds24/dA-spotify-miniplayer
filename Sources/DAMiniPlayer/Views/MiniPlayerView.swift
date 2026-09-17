@@ -7,6 +7,9 @@ struct MiniPlayerView: View {
     let onNext: () -> Void
     let onPrevious: () -> Void
     let onToggleLike: () -> Void
+    let onToggleLayout: () -> Void
+    let onClose: () -> Void
+    @Environment(\.playerTheme) private var theme
 
     var body: some View {
         HStack(spacing: 8) {
@@ -18,20 +21,22 @@ struct MiniPlayerView: View {
             artwork
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(nowPlaying.title.isEmpty ? "Nothing playing" : nowPlaying.title)
-                    .font(.custom("SpaceMono-Bold", size: 12))
-                    .foregroundColor(PlayerTheme.ink)
-                    .lineLimit(1)
+                MarqueeText(
+                    text: nowPlaying.title.isEmpty ? "Nothing playing" : nowPlaying.title,
+                    font: .custom("SpaceMono-Bold", size: 12),
+                    color: theme.ink,
+                    height: 15
+                )
                 Text(nowPlaying.artist)
                     .font(.custom("SpaceMono-Regular", size: 11))
-                    .foregroundColor(PlayerTheme.inkDim)
+                    .foregroundColor(theme.inkDim)
                     .lineLimit(1)
             }
             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
 
             Text("\(TimeFormatter.format(nowPlaying.position)) / \(TimeFormatter.format(nowPlaying.duration))")
                 .font(.custom("SpaceMono-Regular", size: 10))
-                .foregroundColor(PlayerTheme.inkDim)
+                .foregroundColor(theme.inkDim)
 
             Button(action: onTogglePlay) {
                 Image(systemName: nowPlaying.isPlaying ? "pause.fill" : "play.fill")
@@ -44,14 +49,16 @@ struct MiniPlayerView: View {
             .buttonStyle(.plain)
 
             HeartButton(isLiked: isLiked, action: onToggleLike)
+
+            PlayerChromeButtons(mode: .compact, onToggleLayout: onToggleLayout, onClose: onClose)
         }
-        .foregroundColor(PlayerTheme.ink)
+        .foregroundColor(theme.ink)
         .padding(10)
         .frame(width: 320, height: 56)
-        .background(PlayerTheme.surface)
+        .background(theme.surface)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(PlayerTheme.hairline, lineWidth: 1)
+                .stroke(theme.hairline, lineWidth: 1)
         )
         .cornerRadius(8)
     }
@@ -62,13 +69,13 @@ struct MiniPlayerView: View {
             AsyncImage(url: url) { image in
                 image.resizable().aspectRatio(contentMode: .fill)
             } placeholder: {
-                Rectangle().fill(PlayerTheme.ground)
+                Rectangle().fill(theme.ground)
             }
             .frame(width: 36, height: 36)
             .clipped()
         } else {
             Rectangle()
-                .fill(PlayerTheme.ground)
+                .fill(theme.ground)
                 .frame(width: 36, height: 36)
         }
     }

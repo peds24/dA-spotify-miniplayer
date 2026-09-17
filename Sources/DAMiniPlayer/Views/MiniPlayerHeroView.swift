@@ -7,23 +7,40 @@ struct MiniPlayerHeroView: View {
     let onNext: () -> Void
     let onPrevious: () -> Void
     let onToggleLike: () -> Void
+    let onToggleLayout: () -> Void
+    let onClose: () -> Void
+    @Environment(\.playerTheme) private var theme
 
     var body: some View {
         VStack(spacing: 0) {
             artwork
                 .frame(width: 222, height: 200)
                 .clipped()
+                .overlay(alignment: .topTrailing) {
+                    PlayerChromeButtons(
+                        mode: .expanded,
+                        onToggleLayout: onToggleLayout,
+                        onClose: onClose,
+                        dimColor: .white.opacity(0.8),
+                        brightColor: .white
+                    )
+                    .padding(8)
+                    .background(.black.opacity(0.45), in: Capsule())
+                    .padding(8)
+                }
 
             VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .top, spacing: 8) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(nowPlaying.title.isEmpty ? "Nothing playing" : nowPlaying.title)
-                            .font(.custom("SpaceMono-Bold", size: 13))
-                            .foregroundColor(PlayerTheme.ink)
-                            .lineLimit(1)
+                        MarqueeText(
+                            text: nowPlaying.title.isEmpty ? "Nothing playing" : nowPlaying.title,
+                            font: .custom("SpaceMono-Bold", size: 13),
+                            color: theme.ink,
+                            height: 16
+                        )
                         Text(nowPlaying.artist)
                             .font(.custom("SpaceMono-Regular", size: 11))
-                            .foregroundColor(PlayerTheme.inkDim)
+                            .foregroundColor(theme.inkDim)
                             .lineLimit(1)
                     }
                     Spacer(minLength: 8)
@@ -32,7 +49,7 @@ struct MiniPlayerHeroView: View {
 
                 Text("\(TimeFormatter.format(nowPlaying.position)) / \(TimeFormatter.format(nowPlaying.duration))")
                     .font(.custom("SpaceMono-Regular", size: 10))
-                    .foregroundColor(PlayerTheme.inkDim)
+                    .foregroundColor(theme.inkDim)
                     .frame(maxWidth: .infinity, alignment: .center)
 
                 HStack(spacing: 28) {
@@ -56,12 +73,12 @@ struct MiniPlayerHeroView: View {
             }
             .padding(12)
         }
-        .foregroundColor(PlayerTheme.ink)
+        .foregroundColor(theme.ink)
         .frame(width: 222, height: 300)
-        .background(PlayerTheme.surface)
+        .background(theme.surface)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(PlayerTheme.hairline, lineWidth: 1)
+                .stroke(theme.hairline, lineWidth: 1)
         )
         .cornerRadius(10)
     }
@@ -72,10 +89,10 @@ struct MiniPlayerHeroView: View {
             AsyncImage(url: url) { image in
                 image.resizable().aspectRatio(contentMode: .fill)
             } placeholder: {
-                Rectangle().fill(PlayerTheme.ground)
+                Rectangle().fill(theme.ground)
             }
         } else {
-            Rectangle().fill(PlayerTheme.ground)
+            Rectangle().fill(theme.ground)
         }
     }
 }

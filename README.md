@@ -10,14 +10,28 @@ always-on-top, draggable panel showing the current track, with playback
 controls and a button to add the current song straight to your Spotify
 Liked Songs.
 
+<p align="center">
+  <img src="docs/screenshots/expanded-dark.png" width="220" alt="Expanded player, dark theme">
+  <img src="docs/screenshots/expanded-light.png" width="220" alt="Expanded player, light theme">
+</p>
+<p align="center">
+  <img src="docs/screenshots/compact-dark.png" width="460" alt="Compact player, dark theme">
+</p>
+<p align="center">
+  <img src="docs/screenshots/compact-light.png" width="460" alt="Compact player, light theme">
+</p>
+
 ## Features
 
 - Floating panel — drag it anywhere on screen, stays on top of other windows
+- Compact and expanded layouts, toggled with the chevron on the panel itself
 - Live "now playing" info (track, artist, artwork) read directly from the
-  Spotify desktop app
+  Spotify desktop app, with long titles scrolling in a looping marquee
 - Playback controls: previous / play-pause / next
 - One-click "Add to Liked Songs," with the heart reflecting whether the
   current track is already liked
+- Close button right on the panel, alongside the expand/collapse chevron
+- Light and dark themes that follow macOS's system appearance automatically
 - Lives in the menu bar — no Dock icon; right-click the floating panel itself
   to reach the same menu (Log In/Out, layout, Settings, Quit)
 - A dedicated Settings window (⌘,) alongside the menu bar dropdown

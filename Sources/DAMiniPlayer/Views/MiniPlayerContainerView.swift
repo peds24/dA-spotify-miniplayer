@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct MiniPlayerContainerView: View {
@@ -5,9 +6,11 @@ struct MiniPlayerContainerView: View {
     @ObservedObject var likedSongs: LikedSongsService
     @ObservedObject var auth: SpotifyAuth
     @ObservedObject var layoutState: PlayerLayoutState
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         content
+            .environment(\.playerTheme, colorScheme == .dark ? .dark : .light)
             .onAppear(perform: refreshLikedStateIfNeeded)
             // Single-value onChange (not the two-value macOS 14+ overload) —
             // deployment target here is macOS 13. Refresh on either the
@@ -28,7 +31,9 @@ struct MiniPlayerContainerView: View {
                 onTogglePlay: monitor.togglePlayPause,
                 onNext: monitor.next,
                 onPrevious: monitor.previous,
-                onToggleLike: toggleLike
+                onToggleLike: toggleLike,
+                onToggleLayout: toggleLayout,
+                onClose: close
             )
         case .expanded:
             MiniPlayerHeroView(
@@ -37,9 +42,19 @@ struct MiniPlayerContainerView: View {
                 onTogglePlay: monitor.togglePlayPause,
                 onNext: monitor.next,
                 onPrevious: monitor.previous,
-                onToggleLike: toggleLike
+                onToggleLike: toggleLike,
+                onToggleLayout: toggleLayout,
+                onClose: close
             )
         }
+    }
+
+    private func toggleLayout() {
+        layoutState.mode = layoutState.mode == .compact ? .expanded : .compact
+    }
+
+    private func close() {
+        NSApp.terminate(nil)
     }
 
     private var isLiked: Bool? {
