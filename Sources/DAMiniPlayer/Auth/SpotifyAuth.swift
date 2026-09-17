@@ -40,14 +40,22 @@ final class SpotifyAuth: NSObject, ObservableObject, ASWebAuthenticationPresenta
             URLQueryItem(name: "scope", value: scopes)
         ]
 
+        // ASWebAuthenticationSession invokes this completion handler on a
+        // background XPC queue, not the main actor. Since the closure
+        // captures `self` (a @MainActor type), Swift infers it as
+        // @MainActor-isolated, and calling it off-actor traps at runtime.
+        // Hop to the main actor first — nothing here may touch `self`
+        // synchronously outside the Task.
         let authSession = ASWebAuthenticationSession(
             url: components.url!,
             callbackURLScheme: "da-miniplayer"
         ) { [weak self] callbackURL, error in
-            guard let self, let callbackURL, error == nil,
-                  let code = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?
-                      .queryItems?.first(where: { $0.name == "code" })?.value else { return }
-            Task { await self.exchangeCode(code, verifier: verifier) }
+            Task { @MainActor in
+                guard let self, let callbackURL, error == nil,
+                      let code = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?
+                          .queryItems?.first(where: { $0.name == "code" })?.value else { return }
+                await self.exchangeCode(code, verifier: verifier)
+            }
         }
         authSession.presentationContextProvider = self
         authSession.start()
