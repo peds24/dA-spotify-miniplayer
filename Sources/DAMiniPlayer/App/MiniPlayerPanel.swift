@@ -18,4 +18,13 @@ final class MiniPlayerPanel: NSPanel {
         hasShadow = true
         contentView = NSHostingView(rootView: content())
     }
+
+    /// Resizes the panel, keeping its top-left corner fixed so it grows/shrinks
+    /// in place rather than jumping when the user has dragged it elsewhere.
+    func resize(to size: CGSize) {
+        var newFrame = frame
+        newFrame.origin.y += newFrame.height - size.height
+        newFrame.size = size
+        setFrame(newFrame, display: true, animate: true)
+    }
 }
