@@ -9,13 +9,14 @@ struct SettingsView: View {
     let appDelegate: AppDelegate
 
     var body: some View {
-        SettingsContentView(auth: appDelegate.auth, layoutState: appDelegate.layoutState)
+        SettingsContentView(auth: appDelegate.auth, layoutState: appDelegate.layoutState, styleState: appDelegate.styleState)
     }
 }
 
 private struct SettingsContentView: View {
     @ObservedObject var auth: SpotifyAuth
     @ObservedObject var layoutState: PlayerLayoutState
+    @ObservedObject var styleState: PlayerStyleState
 
     var body: some View {
         Form {
@@ -34,6 +35,13 @@ private struct SettingsContentView: View {
             }
 
             Section("Appearance") {
+                Picker("Theme", selection: $styleState.style) {
+                    ForEach(PlayerStyle.allCases) { style in
+                        Text(style.displayName).tag(style)
+                    }
+                }
+                .pickerStyle(.radioGroup)
+
                 Picker("Layout", selection: $layoutState.mode) {
                     Text("Compact").tag(PlayerLayoutMode.compact)
                     Text("Expanded").tag(PlayerLayoutMode.expanded)

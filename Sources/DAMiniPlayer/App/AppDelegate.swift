@@ -13,11 +13,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     lazy var auth = SpotifyAuth(clientID: Config.spotifyClientID, tokenStore: KeychainTokenStore())
     private lazy var likedSongs = LikedSongsService(client: SpotifyWebAPIClient(auth: auth))
     let layoutState = PlayerLayoutState()
+    let styleState = PlayerStyleState()
     private var loginMenuItem: NSMenuItem?
     private var compactMenuItem: NSMenuItem?
     private var expandedMenuItem: NSMenuItem?
+    private var styleMenuItems: [PlayerStyle: NSMenuItem] = [:]
     private var authCancellable: AnyCancellable?
     private var layoutCancellable: AnyCancellable?
+    private var styleCancellable: AnyCancellable?
     private var settingsWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -41,6 +44,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(compactItem)
         menu.addItem(expandedItem)
         menu.addItem(NSMenuItem.separator())
+        for style in PlayerStyle.allCases {
+            let item = NSMenuItem(title: style.displayName, action: #selector(selectStyle(_:)), keyEquivalent: "")
+            item.representedObject = style.rawValue
+            menu.addItem(item)
+            styleMenuItems[style] = item
+        }
+        menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Settings…", action: #selector(showSettings), keyEquivalent: ","))
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit DA Mini Player", action: #selector(quit), keyEquivalent: "q"))
@@ -52,7 +62,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Reused as-is for the panel's right-click menu (MiniPlayerPanel.contextMenu)
         // — same NSMenu instance, same items, same responder-chain-dispatched actions.
         let panel = MiniPlayerPanel {
-            MiniPlayerContainerView(monitor: self.monitor, likedSongs: self.likedSongs, auth: self.auth, layoutState: self.layoutState)
+            MiniPlayerContainerView(monitor: self.monitor, likedSongs: self.likedSongs, auth: self.auth, layoutState: self.layoutState, styleState: self.styleState)
         }
         panel.contextMenu = menu
         panel.orderFrontRegardless()
@@ -71,6 +81,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         layoutCancellable = layoutState.$mode.sink { [weak self] mode in
             self?.panel?.resize(to: mode.size)
             self?.updateLayoutMenuState()
+        }
+
+        styleCancellable = styleState.$style.sink { [weak self] style in
+            for (itemStyle, item) in self?.styleMenuItems ?? [:] {
+                item.state = itemStyle == style ? .on : .off
+            }
         }
 
         self.statusItem = statusBarItem
@@ -103,6 +119,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func selectExpanded() {
         layoutState.mode = .expanded
+    }
+
+    @objc private func selectStyle(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String, let style = PlayerStyle(rawValue: raw) else { return }
+        styleState.style = style
     }
 
     // SwiftUI's `Settings` scene relies on a private, undocumented selector

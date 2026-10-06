@@ -23,20 +23,28 @@ struct MiniPlayerView: View {
             VStack(alignment: .leading, spacing: 2) {
                 MarqueeText(
                     text: nowPlaying.title.isEmpty ? "Nothing playing" : nowPlaying.title,
-                    font: .custom("SpaceMono-Bold", size: 12),
+                    font: theme.titleFont(size: 12),
                     color: theme.ink,
                     height: 15
                 )
-                Text(nowPlaying.artist)
-                    .font(.custom("SpaceMono-Regular", size: 11))
-                    .foregroundColor(theme.inkDim)
-                    .lineLimit(1)
+                HStack(spacing: 6) {
+                    Text(nowPlaying.artist)
+                        .font(theme.bodyFont(size: 11))
+                        .foregroundColor(theme.inkDim)
+                        .lineLimit(1)
+                    // Glass's capsule padding leaves no room for a separate
+                    // time column, so it rides along on the artist line.
+                    if theme.usesGlass {
+                        Spacer(minLength: 0)
+                        timeLabel
+                    }
+                }
             }
             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
 
-            Text("\(TimeFormatter.format(nowPlaying.position)) / \(TimeFormatter.format(nowPlaying.duration))")
-                .font(.custom("SpaceMono-Regular", size: 10))
-                .foregroundColor(theme.inkDim)
+            if !theme.usesGlass {
+                timeLabel
+            }
 
             Button(action: onTogglePlay) {
                 Image(systemName: nowPlaying.isPlaying ? "pause.fill" : "play.fill")
@@ -53,14 +61,22 @@ struct MiniPlayerView: View {
             PlayerChromeButtons(mode: .compact, onToggleLayout: onToggleLayout, onClose: onClose)
         }
         .foregroundColor(theme.ink)
-        .padding(10)
+        .padding(.vertical, 10)
+        .padding(.horizontal, theme.usesGlass ? 12 : 10)
         .frame(width: 320, height: 56)
-        .background(theme.surface)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(theme.hairline, lineWidth: 1)
-        )
-        .cornerRadius(8)
+        .playerSurface(RoundedRectangle(cornerRadius: theme.usesGlass ? 18 : 8, style: .continuous))
+    }
+
+    private var timeLabel: some View {
+        Text("\(TimeFormatter.format(nowPlaying.position)) / \(TimeFormatter.format(nowPlaying.duration))")
+            .font(theme.numericFont(size: 10))
+            .foregroundColor(theme.inkDim)
+            .fixedSize()
+    }
+
+    /// Glass rounds the art to sit concentric with the panel's larger corners.
+    private var artworkShape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: theme.usesGlass ? 8 : 0, style: .continuous)
     }
 
     @ViewBuilder
@@ -72,9 +88,9 @@ struct MiniPlayerView: View {
                 Rectangle().fill(theme.ground)
             }
             .frame(width: 36, height: 36)
-            .clipped()
+            .clipShape(artworkShape)
         } else {
-            Rectangle()
+            artworkShape
                 .fill(theme.ground)
                 .frame(width: 36, height: 36)
         }

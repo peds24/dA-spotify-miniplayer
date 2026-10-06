@@ -6,11 +6,12 @@ struct MiniPlayerContainerView: View {
     @ObservedObject var likedSongs: LikedSongsService
     @ObservedObject var auth: SpotifyAuth
     @ObservedObject var layoutState: PlayerLayoutState
+    @ObservedObject var styleState: PlayerStyleState
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         content
-            .environment(\.playerTheme, colorScheme == .dark ? .dark : .light)
+            .environment(\.playerTheme, PlayerTheme.resolve(style: styleState.style, colorScheme: colorScheme))
             .onAppear(perform: refreshLikedStateIfNeeded)
             // Single-value onChange (not the two-value macOS 14+ overload) —
             // deployment target here is macOS 13. Refresh on either the

@@ -31,9 +31,12 @@ Liked Songs.
 - One-click "Add to Liked Songs," with the heart reflecting whether the
   current track is already liked
 - Close button right on the panel, alongside the expand/collapse chevron
-- Light and dark themes that follow macOS's system appearance automatically
+- Two themes, switchable from Settings or the menu: **Liquid Glass** (the
+  default — macOS 26's glass material with system typography; falls back to a
+  translucent material on older macOS) and **Digital Archives** (the original
+  green/tan Space Mono look). Both follow macOS's light/dark appearance
 - Lives in the menu bar — no Dock icon; right-click the floating panel itself
-  to reach the same menu (Log In/Out, layout, Settings, Quit)
+  to reach the same menu (Log In/Out, layout, theme, Settings, Quit)
 - A dedicated Settings window (⌘,) alongside the menu bar dropdown
 
 ## Requirements

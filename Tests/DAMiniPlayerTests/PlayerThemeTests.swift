@@ -29,3 +29,38 @@ final class PlayerThemeTests: XCTestCase {
 private extension Int {
     var hexDouble: Double { Double(self) / 255.0 }
 }
+
+final class PlayerStyleStateTests: XCTestCase {
+    private var defaults: UserDefaults!
+    private let suiteName = "PlayerStyleStateTests"
+
+    override func setUp() {
+        defaults = UserDefaults(suiteName: suiteName)
+        defaults.removePersistentDomain(forName: suiteName)
+    }
+
+    override func tearDown() {
+        defaults.removePersistentDomain(forName: suiteName)
+    }
+
+    func testDefaultsToLiquidGlass() {
+        XCTAssertEqual(PlayerStyleState(defaults: defaults).style, .liquidGlass)
+    }
+
+    func testPersistsSelection() {
+        PlayerStyleState(defaults: defaults).style = .digitalArchives
+        XCTAssertEqual(PlayerStyleState(defaults: defaults).style, .digitalArchives)
+    }
+
+    func testUnknownStoredValueFallsBackToDefault() {
+        defaults.set("bogus", forKey: PlayerStyleState.defaultsKey)
+        XCTAssertEqual(PlayerStyleState(defaults: defaults).style, .liquidGlass)
+    }
+
+    func testResolveThemes() {
+        XCTAssertTrue(PlayerTheme.resolve(style: .liquidGlass, colorScheme: .light).usesGlass)
+        XCTAssertFalse(PlayerTheme.resolve(style: .digitalArchives, colorScheme: .dark).usesGlass)
+        XCTAssertEqual(PlayerTheme.resolve(style: .digitalArchives, colorScheme: .dark).accent, PlayerTheme.dark.accent)
+        XCTAssertEqual(PlayerTheme.resolve(style: .digitalArchives, colorScheme: .light).accent, PlayerTheme.light.accent)
+    }
+}
