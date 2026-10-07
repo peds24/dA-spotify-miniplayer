@@ -452,11 +452,11 @@ footer a:hover { color: var(--accent); }
       just the track.
     </p>
     <p class="alpha-note glass">
-      🚧 <strong>Alpha</strong> — v1.0.0 is a first, working-but-rough cut.
+      🚧 <strong>Alpha</strong> — still a working-but-rough cut.
       Expect bugs and breaking changes before a stable 1.0.
     </p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="https://github.com/peds24/dA-spotify-miniplayer/releases/tag/v1.0.0">Download v1.0.0</a>
+      <a class="btn btn-primary" href="https://github.com/peds24/dA-spotify-miniplayer/releases/latest">Download latest</a>
       <a class="btn btn-secondary glass" href="https://github.com/peds24/dA-spotify-miniplayer">View on GitHub</a>
     </div>
   </div>
@@ -551,13 +551,17 @@ footer a:hover { color: var(--accent); }
         <h3>Homebrew</h3>
         <pre>brew tap peds24/tap
 brew trust peds24/tap
-brew install --cask da-miniplayer</pre>
+brew install --cask da-miniplayer
+
+# later, to update
+brew update
+brew upgrade --cask da-miniplayer</pre>
         <p>Not notarized yet (no paid Apple Developer ID) — the cask clears the Gatekeeper quarantine flag on install so it opens normally.</p>
       </div>
       <div class="install-card glass">
         <h3>Manual download</h3>
-        <pre>DAMiniPlayer-v1.0.0.zip → /Applications</pre>
-        <p>Download from the <a href="https://github.com/peds24/dA-spotify-miniplayer/releases/tag/v1.0.0">v1.0.0 release</a>, unzip, and move <code>DAMiniPlayer.app</code> to <code>/Applications</code>. Since it's unsigned, right-click and choose "Open" the first time instead of double-clicking.</p>
+        <pre>DAMiniPlayer-vX.Y.Z.zip → /Applications</pre>
+        <p>Download from the <a href="https://github.com/peds24/dA-spotify-miniplayer/releases/latest">latest release</a>, unzip, and move <code>DAMiniPlayer.app</code> to <code>/Applications</code>. Since it's unsigned, right-click and choose "Open" the first time instead of double-clicking.</p>
       </div>
     </div>
     <p class="requirements">

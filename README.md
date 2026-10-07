@@ -1,7 +1,7 @@
 # dA Spotify Mini Player
 
-🚧 **Alpha** — the [v1.0.0 release](https://github.com/peds24/dA-spotify-miniplayer/releases/tag/v1.0.0)
-is a first, working-but-rough cut. Expect bugs and breaking changes before a
+🚧 **Alpha** — the [latest release](https://github.com/peds24/dA-spotify-miniplayer/releases/latest)
+is still a working-but-rough cut. Expect bugs and breaking changes before a
 stable 1.0. See [Liked Songs access](#liked-songs-access) below for a current
 limitation on the heart button.
 
@@ -55,14 +55,21 @@ brew install --cask da-miniplayer
 ```
 
 This installs the same ad-hoc-signed build attached to the
-[v1.0.0 release](https://github.com/peds24/dA-spotify-miniplayer/releases/tag/v1.0.0)
+[latest release](https://github.com/peds24/dA-spotify-miniplayer/releases/latest)
 (no paid Apple Developer identity yet, so it isn't notarized — the cask
 clears the Gatekeeper quarantine flag on install so it opens normally).
 
+To update to a newer version later:
+
+```bash
+brew update
+brew upgrade --cask da-miniplayer
+```
+
 ### Manual download
 
-Download `DAMiniPlayer-v1.0.0.zip` from the
-[v1.0.0 release](https://github.com/peds24/dA-spotify-miniplayer/releases/tag/v1.0.0),
+Download `DAMiniPlayer-vX.Y.Z.zip` from the
+[latest release](https://github.com/peds24/dA-spotify-miniplayer/releases/latest),
 unzip, and move `DAMiniPlayer.app` to `/Applications`. Since it's unsigned,
 right-click the app and choose "Open" the first time instead of double-clicking,
 or it'll be blocked by Gatekeeper.
