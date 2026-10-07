@@ -57,7 +57,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.loginMenuItem = loginItem
         self.compactMenuItem = compactItem
         self.expandedMenuItem = expandedItem
-        updateLayoutMenuState()
+        updateLayoutMenuState(layoutState.mode)
 
         // Reused as-is for the panel's right-click menu (MiniPlayerPanel.contextMenu)
         // — same NSMenu instance, same items, same responder-chain-dispatched actions.
@@ -78,8 +78,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.loginMenuItem?.title = self?.loginTitle ?? ""
         }
 
-        layoutCancellable = layoutState.$mode.sink { [weak self] _ in
-            self?.updateLayoutMenuState()
+        // @Published emits in willSet — the property still holds the OLD
+        // value here, so use the one the publisher hands over.
+        layoutCancellable = layoutState.$mode.sink { [weak self] mode in
+            self?.updateLayoutMenuState(mode)
         }
 
         styleCancellable = styleState.$style.sink { [weak self] style in
@@ -99,9 +101,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         auth.isLoggedIn ? "Log Out of Spotify" : "Log In to Spotify"
     }
 
-    private func updateLayoutMenuState() {
-        compactMenuItem?.state = layoutState.mode == .compact ? .on : .off
-        expandedMenuItem?.state = layoutState.mode == .expanded ? .on : .off
+    private func updateLayoutMenuState(_ mode: PlayerLayoutMode) {
+        compactMenuItem?.state = mode == .compact ? .on : .off
+        expandedMenuItem?.state = mode == .expanded ? .on : .off
     }
 
     @objc private func toggleLogin() {
