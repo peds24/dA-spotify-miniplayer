@@ -48,6 +48,12 @@ private struct SettingsContentView: View {
                 }
                 .pickerStyle(.radioGroup)
             }
+
+            Section("About") {
+                Text(AppVersion.display())
+                    .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
+            }
         }
         .padding(20)
         .frame(width: 320)
