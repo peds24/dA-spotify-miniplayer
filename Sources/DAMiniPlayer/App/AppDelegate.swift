@@ -78,8 +78,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.loginMenuItem?.title = self?.loginTitle ?? ""
         }
 
-        layoutCancellable = layoutState.$mode.sink { [weak self] mode in
-            self?.panel?.resize(to: mode.size)
+        layoutCancellable = layoutState.$mode.sink { [weak self] _ in
             self?.updateLayoutMenuState()
         }
 

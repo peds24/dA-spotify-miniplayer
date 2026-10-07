@@ -77,8 +77,7 @@ struct MiniPlayerHeroView: View {
             .frame(maxHeight: .infinity)
         }
         .foregroundColor(theme.ink)
-        .frame(width: 222, height: 300)
-        .playerSurface(RoundedRectangle(cornerRadius: theme.usesGlass ? 22 : 10, style: .continuous))
+        .frame(width: PlayerLayoutMode.expanded.size.width, height: PlayerLayoutMode.expanded.size.height)
     }
 
     /// Glass insets the art by 8pt, so its corners are the panel's 22pt
@@ -87,17 +86,8 @@ struct MiniPlayerHeroView: View {
         RoundedRectangle(cornerRadius: theme.usesGlass ? 14 : 0, style: .continuous)
     }
 
-    @ViewBuilder
     private var artwork: some View {
-        if let url = nowPlaying.artworkURL {
-            AsyncImage(url: url) { image in
-                image.resizable().aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle().fill(theme.ground)
-            }
-        } else {
-            Rectangle().fill(theme.ground)
-        }
+        ArtworkImage(url: nowPlaying.artworkURL)
     }
 }
 

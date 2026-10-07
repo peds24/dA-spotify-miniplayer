@@ -63,8 +63,7 @@ struct MiniPlayerView: View {
         .foregroundColor(theme.ink)
         .padding(.vertical, 10)
         .padding(.horizontal, theme.usesGlass ? 12 : 10)
-        .frame(width: 320, height: 56)
-        .playerSurface(RoundedRectangle(cornerRadius: theme.usesGlass ? 18 : 8, style: .continuous))
+        .frame(width: PlayerLayoutMode.compact.size.width, height: PlayerLayoutMode.compact.size.height)
     }
 
     private var timeLabel: some View {
@@ -79,20 +78,9 @@ struct MiniPlayerView: View {
         RoundedRectangle(cornerRadius: theme.usesGlass ? 8 : 0, style: .continuous)
     }
 
-    @ViewBuilder
     private var artwork: some View {
-        if let url = nowPlaying.artworkURL {
-            AsyncImage(url: url) { image in
-                image.resizable().aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle().fill(theme.ground)
-            }
+        ArtworkImage(url: nowPlaying.artworkURL)
             .frame(width: 36, height: 36)
             .clipShape(artworkShape)
-        } else {
-            artworkShape
-                .fill(theme.ground)
-                .frame(width: 36, height: 36)
-        }
     }
 }

@@ -9,9 +9,13 @@ struct MiniPlayerContainerView: View {
     @ObservedObject var styleState: PlayerStyleState
     @Environment(\.colorScheme) private var colorScheme
 
+    private var theme: PlayerTheme {
+        PlayerTheme.resolve(style: styleState.style, colorScheme: colorScheme)
+    }
+
     var body: some View {
-        content
-            .environment(\.playerTheme, PlayerTheme.resolve(style: styleState.style, colorScheme: colorScheme))
+        panel
+            .environment(\.playerTheme, theme)
             .onAppear(perform: refreshLikedStateIfNeeded)
             // Single-value onChange (not the two-value macOS 14+ overload) —
             // deployment target here is macOS 13. Refresh on either the
@@ -20,6 +24,22 @@ struct MiniPlayerContainerView: View {
             // transition needs its own trigger too.
             .onChange(of: monitor.nowPlaying.trackID) { _ in refreshLikedStateIfNeeded() }
             .onChange(of: auth.isLoggedIn) { _ in refreshLikedStateIfNeeded() }
+    }
+
+    /// One surface that morphs between the two layouts' sizes and corner
+    /// radii, centered in the fixed-size window — so the compact bar sits
+    /// at the expanded panel's vertical midpoint and toggling never drifts.
+    /// The layouts themselves crossfade inside it.
+    private var panel: some View {
+        let size = layoutState.mode.size
+        return ZStack {
+            content
+        }
+        .frame(width: size.width, height: size.height)
+        .playerSurface(RoundedRectangle(cornerRadius: theme.panelCornerRadius(for: layoutState.mode), style: .continuous))
+        .shadow(color: .black.opacity(0.28), radius: 10, y: 4)
+        .frame(width: PlayerLayoutMode.canvasSize.width, height: PlayerLayoutMode.canvasSize.height)
+        .animation(.spring(response: 0.42, dampingFraction: 0.86), value: layoutState.mode)
     }
 
     @ViewBuilder
@@ -36,6 +56,7 @@ struct MiniPlayerContainerView: View {
                 onToggleLayout: toggleLayout,
                 onClose: close
             )
+            .transition(.opacity)
         case .expanded:
             MiniPlayerHeroView(
                 nowPlaying: monitor.nowPlaying,
@@ -47,6 +68,7 @@ struct MiniPlayerContainerView: View {
                 onToggleLayout: toggleLayout,
                 onClose: close
             )
+            .transition(.opacity)
         }
     }
 

@@ -9,7 +9,7 @@ final class MiniPlayerPanel: NSPanel {
 
     init<Content: View>(@ViewBuilder content: () -> Content) {
         super.init(
-            contentRect: NSRect(x: 100, y: 100, width: 320, height: 56),
+            contentRect: NSRect(origin: NSPoint(x: 100, y: 100), size: PlayerLayoutMode.canvasSize),
             styleMask: [.nonactivatingPanel, .borderless],
             backing: .buffered,
             defer: false
@@ -20,7 +20,9 @@ final class MiniPlayerPanel: NSPanel {
         isMovableByWindowBackground = true
         backgroundColor = .clear
         isOpaque = false
-        hasShadow = true
+        // The SwiftUI panel draws its own shadow: a window shadow is traced
+        // from the content's shape once, so it'd go stale mid-morph.
+        hasShadow = false
         contentView = NSHostingView(rootView: content())
     }
 
@@ -30,14 +32,5 @@ final class MiniPlayerPanel: NSPanel {
             return
         }
         NSMenu.popUpContextMenu(contextMenu, with: event, for: contentView)
-    }
-
-    /// Resizes the panel, keeping its top-left corner fixed so it grows/shrinks
-    /// in place rather than jumping when the user has dragged it elsewhere.
-    func resize(to size: CGSize) {
-        var newFrame = frame
-        newFrame.origin.y += newFrame.height - size.height
-        newFrame.size = size
-        setFrame(newFrame, display: true, animate: true)
     }
 }

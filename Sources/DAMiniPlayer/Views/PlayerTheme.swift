@@ -66,6 +66,14 @@ struct PlayerTheme {
         usesGlass: false
     )
 
+    /// Glass uses larger radii, per macOS 26's rounder window shapes.
+    func panelCornerRadius(for mode: PlayerLayoutMode) -> CGFloat {
+        switch mode {
+        case .compact: usesGlass ? 18 : 8
+        case .expanded: usesGlass ? 22 : 10
+        }
+    }
+
     func titleFont(size: CGFloat) -> Font {
         switch typeface {
         case .spaceMono: .custom("SpaceMono-Bold", size: size)
@@ -118,7 +126,7 @@ struct PlayerSurface<S: InsettableShape>: ViewModifier {
     func body(content: Content) -> some View {
         if theme.usesGlass {
             if #available(macOS 26.0, *) {
-                content.glassEffect(.regular, in: shape)
+                content.clipShape(shape).glassEffect(.regular, in: shape)
             } else {
                 content
                     .background(.regularMaterial, in: shape)
